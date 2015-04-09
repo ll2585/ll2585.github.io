@@ -8,8 +8,13 @@ Some information about you!
 
 ### More Information
 
-A place to include any other types of information that you'd like to include about yourself.
+I am Luke, currently an analyst at an economic consulting firm, with solid experience in programming.
 
 ### Contact me
 
 [email@domain.com](mailto:email@domain.com)
+
+<hr>
+##### Sites I used in setting up this blog
+This blog was set up with the help of [this](http://www.smashingmagazine.com/2014/08/01/build-blog-jekyll-github-pages/) great site! (and then I customized it)
+[Here](http://www.minddust.com/post/tags-and-categories-on-github-pages/) for tags

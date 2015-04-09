@@ -2,6 +2,8 @@
 # This file contains configuration flags to customize your site
 #
 
+
+
 # Name of your site (displayed in the header)
 name: Luke's Posts
 
@@ -53,7 +55,9 @@ baseurl: ""
 
 markdown: redcarpet
 highlighter: pygments
-permalink: /:title/
+permalink: /blog/:categories/:year/:month/:day/:title/
+paginate: 5
+paginate_path: '/blog/:num'
 
 # The release of Jekyll Now that you're using
 version: v1.1.0
