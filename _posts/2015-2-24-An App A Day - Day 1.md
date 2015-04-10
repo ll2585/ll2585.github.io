@@ -12,7 +12,8 @@ So for this day 1, I will put in various widgets into this one activity, along w
 -------------
 ######Simple Steps
 First let's increase the text size and center it.  In `activity_main.xml`, add `android:textSize="50sp"` and `android:layout_centerHorizontal="true"` to `TextView`.  Also add an id field: `android:id="@+id/txt_view` so now it looks like:
-```
+
+```xml
 <TextView
         android:text="@string/hello_world"
         android:layout_width="wrap_content"
@@ -34,7 +35,8 @@ Note that it is `final` because it will be used in an inner class, and it is cas
 Add the button as well: `Button button = (Button) findViewById(R.id.but1)`
 
 Then add an onclick listener:
-```
+
+```java
 button.setOnClickListener(new View.OnClickListener() {
 	@Override
 	public void onClick(View v) {

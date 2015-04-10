@@ -54,10 +54,11 @@ baseurl: ""
 #
 
 markdown: redcarpet
-highlighter: pygments
+highlighter: rouge
 permalink: /blog/:categories/:year/:month/:day/:title/
 paginate: 5
 paginate_path: '/blog/:num'
+encoding: utf-8
 
 # The release of Jekyll Now that you're using
 version: v1.1.0
@@ -70,9 +71,13 @@ sass:
 gems:
   - jekyll-sitemap # Create a sitemap using the official Jekyll sitemap gem
 
+redcarpet:
+  extensions: ['fenced_code_blocks']
 # Exclude these files from your production _site
 exclude:
     - Gemfile
     - Gemfile.lock
     - LICENSE
     - README.md
+    
+markdown_ext: "markdown,mkdown,mkdn,mkd,md"

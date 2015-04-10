@@ -19,7 +19,8 @@ Set up a new program.  Change `RelativeLayout` to `LinearLayout` - whenever you 
 
 ######The Answers
 Now we will add a section that contains a list of Fridays from January 1, 2015 to April 1, 2015.  First we add a `TextView` with the text `List of Fridays` (make this a string).  Also, set the size to something large enough.
-```
+
+```xml
 <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -33,12 +34,14 @@ It should look something like this:
 ######Fridays
 
 In `MainActivity` first  set up the Friday logic.  First declare the Fridays in an array: 
-```
+
+```java
 private String fridays = {"January 2", "January 9", "January 16", "January 23", "January 30", 
                 "February 6", "February 13", "February 20", "February 27",
                 "March 6", "March 13", "March 20", "March 27"};
 ```
 And then make helper methods to get a random date, and determine if a date is Friday.  I also wrote a method to update the prompt:   
+
 ```java
 private void updateFridayText(String temp){
         tested_date = temp;
@@ -51,7 +54,8 @@ private void updateFridayText(String temp){
 ######The Adapter
 Make a custom `ListAdapter`: `ListAdapter friday_adapter = new CustomAdapter(this, fridays);`
 and then set the adapter to the view:  
-```
+
+```java
 final ListView friday_view = (ListView) findViewById(R.id.fridays_listView);
 friday_view.setAdapter(friday_adapter);
 ```
@@ -71,7 +75,8 @@ Make an `.xml` file for the `CustomLayout`.  Per the tutorial, I have a simple `
 In `CustomAdapter.java`, I have a `LayoutInflater` that puts the data into the `.xml` file.
 ######Toasting
 I made a `Toast` for the response clicked by the user:   
-```
+
+```java
 public void onYesButtonClick(View view) {
         String response = isFriday(tested_date) ? getString(R.string.good_job) : getString(R.string.wrong);
         Toast.makeText(this, response, Toast.LENGTH_SHORT).show();
