@@ -19,12 +19,3 @@ I am Luke, currently an analyst at an economic consulting firm, with solid exper
 This blog was set up with the help of [this](http://www.smashingmagazine.com/2014/08/01/build-blog-jekyll-github-pages/) great site! (and then I customized it)  
 [Here](http://www.minddust.com/post/tags-and-categories-on-github-pages/) for tags  
 [Here](https://github.com/jbranchaud/blog/blob/master/_posts/2013-03-02-Running-Your-Jekyll-Blog-from-a-Subdirectory.md) for running it in a subdirectory (/blog)
-
-
-```java
-<TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/fridays_title"
-        android:textSize="20sp"/>
-```
