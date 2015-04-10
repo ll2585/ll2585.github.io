@@ -1,28 +1,33 @@
 <!DOCTYPE html>
-<html>
+<html ng-app="howToPlayApp">
 <head lang="en">
     <meta charset="UTF-8">
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
 
     <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular-route.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/angular-strap/2.1.2/angular-strap.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/angular-strap/2.1.2/angular-strap.tpl.min.js"></script>
+    <script src="/howtoplay/splendor.js"></script>
     <script src="/howtoplay/howtoplay.js"></script>
+    <base href="/" />
     <title></title>
 
 </head>
-<body>
+<body ng-controller="MainCtrl">
 
 <div class = "container-fluid">
     <div class="row">
-        <div class="col-sm-3 col-md-2 sidebar">
-            WAT
+        <div class="col-sm-3 col-md-2 sidebar" >
+            <a href="#" ng-click='loadGame("splendor")'> SPLENDOR </a>
         </div>
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-            <div id="inputline">
+            <div id="inputline" >
+                [[message ]]
                 How do we play
                 <input type="text" placeholder="[game]" style="position: relative; vertical-align: top; background-color: transparent;">
             </div>
+            <div ng-if="selectedGame != ''" ng-include="[[selectedGameURL]]"></div>
         </div>
     </div>
 </div>
