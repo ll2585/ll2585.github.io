@@ -72,7 +72,7 @@ gems:
   - jekyll-sitemap # Create a sitemap using the official Jekyll sitemap gem
 
 redcarpet:
-  extensions: ['fenced_code_blocks']
+  extensions: ['fenced_code_blocks', 'tables']
 # Exclude these files from your production _site
 exclude:
     - Gemfile
