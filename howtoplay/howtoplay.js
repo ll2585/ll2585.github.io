@@ -12,5 +12,7 @@ howToPlayApp.controller('MainCtrl', function($scope){
         $scope.selectedGame = name;
         $scope.selectedGameURL = "/howtoplay/" + $scope.selectedGame + ".html";
     }
+    
+    $scope.loadGame('splendor');
 });
 //angular.module('howToPlayApp', ['ngRoute', 'howtoroutes', 'MainCtrl', 'SplendorCtrl', 'ui.bootstrap', 'ngCookies', 'ngStorage', 'mgcrea.ngStrap', 'ngJoyRide','smart-table', 'ngSanitize']);

@@ -1,22 +1,43 @@
 angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', function($scope) {
     
-    $scope.game = "SPLENDOR"
+    $scope.game = "SPLENDOR";
     
-    //step 1: the point of this game is to have the most points, and the game ends once someone reaches 15 points
-    //step 2: right now you have 3 points because you own this card
-    //step 3: on your turn you can do 3 actions. one action is to buy a card. 
-    //step 4: this card costs gems. this is your gem pool. but you do not have the required gems.
-    //step 5: another action you can do on your turn is to take three gems of different colors. click red black and white to take those gems.
-    //step 6: alice took these gems.
-    //step 7: bob bought this card and returned these gems. it is now your turn.
-    //step 8: another action you can do on your turn is to take two gems of the same color. click red red to take those gems. you can only do this if there are at least 4 gems of that color available.
-    //step 9: alice took these gems.
-    //step 10: bob bought this card and returned these gems. it is now your turn.
-    //step 11: finally you can buy this card! when you buy a card, you return the gems to the pool.
-    //step 12: [alice, bob]
-    //step 13: you can also buy this card! your cards count as a permanent gem to that color, which you can use to purchase more cards with
-    //step 14: [alice, bob] the last action you can take is to reserve a card. reserve this card. reserving a card grants you a free gold token
-    //step 15: [alice, bob] now buy this card. because you have (these cards) you automatically get this noble! now you have. alice and bob have one last turn, and then whoever has the most points wins!
+    //welcome to splendor: this is a game about building the greatest gem factory where the winner will be the person with the most number of points.
+    //this is the game layout -  as you can see, there are three levels of possible gem buildings to build, each with differing costs
+    //normally in a real game you will start off with 0 gems, but for this tutorial, we will give you some gems and some cards already.
+    //because you own this building, you have 3 points already.
+    //this building also produces one red gem for you.
+    //on your turn you can buy buildings if you can afford them. click this building to buy it. 
+    //the cost of this building was XYZ gems. because you produce one red gem already, the red cost is reduced by 1.
+    //for the other gems, you must pay the cost
+    //your turn is over so end your turn
+    //on alice's turn, she took 3 gems of different colors. this is another action you can do.
+    //on bob's turn, bob took 2 gems of different colors. this is another action you can do, but only if there are at least 4 gems of that color available.
+    //this building provides a good number of points, but you cannot afford it yet. click it to reserve it. this is the final action you can do. 
+    //when you reserve a card, only you can build it, but only on a future turn. you can only reserve 3 cards max.
+    //you also receive a gold gem, which is a wildcard gem color
+    //end your turn
+    //alice built this building
+    //bob built this building
+    //click the red pile to take two red gems
+    //end your turn
+    //alice took 3 gems
+    //bob took 3 gems
+    //now you can build this building! click it to build it.
+    //notice how, because you have two red buildings, the red gem cost is reduced by 2. also you used your gold gem because you do not have a black gem. now you have 11 points! buildings are replaced when built.
+    //end your turn
+    //alice took 2 gems
+    //bob took 2 gems
+    //click this card to reserve it
+    //end your turn
+    //alice took 3 gems
+    //bob built a building
+    //take these three gems
+    //alice built a building
+    //bob built a building
+    //build this building! now you have 15 points. because you started the game, bob and alice have one final turn.
+    //alice builds this building. because she has 3 green and 3 blue and 3 red buildings, she gets this noble card which gives her more points! noble cards are not replaced when taken.
+    //bob builds this building. he gets these two nobles, and therefore has 18 points and wins! the end. replay?
     
     
 }]);
