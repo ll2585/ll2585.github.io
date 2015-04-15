@@ -1,0 +1,19 @@
+<div class="card">
+    <div class="top">
+        <div class="points" ng-if="points > 0">
+            {{points}}
+        </div>
+        <div class="color {{color}}">
+        </div>
+    </div>
+    <div class="bottom">
+        <div class="costs">
+            <div ng-repeat = "(cost_color, cost_amt) in costDict" class="cost" >
+                <div class="cost-amt">{{cost_amt}}</div>
+                <div class="color {{cost_color}}">
+                    &nbsp &nbsp
+                    </div>
+            </div>
+        </div>
+    </div>
+</div>

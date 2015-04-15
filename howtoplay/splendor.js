@@ -40,4 +40,18 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', functio
     //bob builds this building. he gets these two nobles, and therefore has 18 points and wins! the end. replay?
     
     
-}]);
+}]).directive('card', function($timeout, $window) {
+    return {
+        restrict: 'E',
+        scope:{
+            points: '=',
+            color: '@'
+        },
+        link: function(scope,element,attrs){
+            scope.costDict = JSON.parse(attrs.cost);
+        },
+        templateUrl: '/howtoplay/card.html'
+
+    };
+
+});
