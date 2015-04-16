@@ -1,21 +1,56 @@
 <div id="splendor" ng-controller="SplendorCtrl">
     [[game]]
+    <div class="container">
+        <button ng-click="buyCard('bob', 'deck 3', 1)">CLICK</button>
     <div id="bob">
         <img src="/howtoplay/img/chars/bob.jpg">
+        <div class="scoreboard">
+            CARDS
+            <div class="card-section">
+                <div ng-repeat="(i, color) in colors" class="deck">
+                    [[color]]
+                    <card ng-repeat="c in players['bob']['deck'][color]"  points="c.points" color="c.color" cost="c.cost">
+                    </card>
+                </div>
+            </div>
+            
+        </div>
     </div>
     <div id="you">
         <img src="/howtoplay/img/chars/you.png" style="height:130px; width:95px;">
+        <div class="scoreboard">
+            CARDS
+            <div ng-repeat="(i, color) in colors">
+                <card ng-repeat="c in players['me']['deck'][color]"  points="c.points" color="c.color" cost="c.cost">
+                </card>
+            </div>
+        </div>
     </div>
     <div id="board">
-        THE BOARD<card points="5" color="red" cost='{"red": 2, "black": 3}'></card>
-        <card points="4" color="blue" cost='{"white": 5}'></card>
-        <card points="3" color="black" cost='{"red": 5, "black": 3}'></card>
-        <card points="2" color="green" cost='{"red": 5, "black": 3}'></card>
-        <card points="1" color="white" cost='{"red": 5, "black": 3}'></card>
-        <card points="0" color="white" cost='{"red": 5, "black": 3}'></card>
+        THE BOARD
+        <div id = "level3-cards">
+            <card ng-repeat="c in board['deck 3']"  points="c.points" color="c.color" cost="c.cost">
+            </card>
+        </div>
+        <div id = "level2-cards">
+            <card ng-repeat="c in  board['deck 2']"  points="c.points" color="c.color" cost="c.cost">
+            </card>
+        </div>
+        <div id = "level1-cards">
+            <card ng-repeat="c in  board['deck 1']"  points="c.points" color="c.color" cost="c.cost">
+            </card>
+        </div>
     </div>
     <div id="alice">
         <img src="/howtoplay/img/chars/alice.jpg">
+        <div class="scoreboard">
+            CARDS
+            <div ng-repeat="(i, color) in colors">
+                <card ng-repeat="c in players['alice']['deck'][color]"  points="c.points" color="c.color" cost="c.cost">
+                </card>
+            </div>
+        </div>
+    </div>
     </div>
 </div>
-<link href="/howtoplay/css/splendor.css" rel="stylesheet">
+<link href="/howtoplay/css/splendor.css?v=[[randomID]]" rel="stylesheet">

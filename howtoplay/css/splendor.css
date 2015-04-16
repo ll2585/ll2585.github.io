@@ -2,11 +2,11 @@
     width: 75px;
     height: 105px;
     outline: black solid thin;
+    background-color: #ffffff;
 }
 
 .card > .top{
     height:25%;
-    opacity: 30;
     outline: black solid thin; 
     position: relative;
 }
@@ -34,6 +34,7 @@
     height: 80%;
     width: 28%;
     position:absolute;
+
 }
 .card .red {
     background: url(../img/splendor/red.svg);
@@ -57,14 +58,13 @@
 }
 .card > .bottom > .costs > .cost{
     left: 2px;
-    margin-bottom: 2px;
     height: 100%;
     width: 100%;
     display: inline-block;
 }
 .card > .bottom > .costs > .cost > .cost-amt{
     height: 100%;
-    width: 16px; /*  make this responsive eventually */
+    width: 16px; /* TODO: make this responsive eventually */
     display: inline;
 }
 .card > .bottom > .costs > .cost > .color{
@@ -80,4 +80,40 @@
     display: inline-block;
     bottom:0;
     left: 5px;
+}
+
+.scoreboard{
+    border: 1px solid black;
+    float:right;
+    width: 377px; /* TODO: make this responsive */
+    height: 130px; /* TODO: make this responsive */
+}
+
+.card-section > .deck{
+    display: inline-block;
+    margin-top: 79px; /* TODO: make this responsive */
+}
+
+.card-section > .deck > .card{
+    margin-top: -79px; /* TODO: make this responsive */
+    /* TODO: make this opaque too */
+}
+
+
+#you{
+    float:right;
+}
+#bob{
+    float:left;
+}
+#alice{
+    float:left;
+}
+#board{
+    clear:both;
+}
+
+
+#level3-cards > .card{
+    float: right;
 }

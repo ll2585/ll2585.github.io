@@ -1,6 +1,58 @@
-angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', function($scope) {
+angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFactory', 'PlayerFactory', function($scope, CardFactory, PlayerFactory) {
     
     $scope.game = "SPLENDOR";
+    
+    $scope.colors = ["black","white","red","blue","green"];
+    
+    $scope.players = {
+        'bob': PlayerFactory.newPlayer('bob'),
+        'me': PlayerFactory.newPlayer('me'),
+        'alice': PlayerFactory.newPlayer('alice')
+    };
+    $scope.decks = {
+        'deck 1': [],
+        'deck 2': [],
+        'deck 3': [CardFactory.newCard("white", 4, {"black": 7}),
+            CardFactory.newCard("white", 5, {"black": 7, "white": 3}),
+            CardFactory.newCard("white", 4, {"black": 6, "white": 3, "red": 3}),
+            CardFactory.newCard("white", 3, {"black": 3, "red": 5, "blue": 3, "green": 3}),
+            CardFactory.newCard("blue", 4, {"white": 7}),
+            CardFactory.newCard("blue", 5, {"white": 7, "blue": 3}),
+            CardFactory.newCard("blue", 4, {"black": 3, "white": 6, "blue": 3}),
+            CardFactory.newCard("blue", 3, {"black": 5, "white": 3, "red": 3, "green": 3}),
+            CardFactory.newCard("green", 4, {"blue": 7}),
+            CardFactory.newCard("green", 5, {"blue": 7, "green": 3}),
+            CardFactory.newCard("green", 4, {"white": 3, "blue": 6, "green": 3}),
+            CardFactory.newCard("green", 3, {"black": 3, "white": 5, "red": 3, "blue": 3}),
+            CardFactory.newCard("red", 4, {"green": 7}),
+            CardFactory.newCard("red", 5, {"red": 3, "green": 7}),
+            CardFactory.newCard("red", 4, {"red": 3, "blue": 3, "green": 6}),
+            CardFactory.newCard("red", 3, {"black": 3, "white": 3, "blue": 5, "green": 3}),
+            CardFactory.newCard("black", 4, {"red": 7}),
+            CardFactory.newCard("black", 5, {"black": 3, "red": 7}),
+            CardFactory.newCard("black", 4, {"black": 3, "red": 6, "green": 3}),
+            CardFactory.newCard("black", 3, {"white": 3, "red": 3, "blue": 3, "green": 5})]
+    };
+    $scope.board = {
+        'deck 1': [],
+        'deck 2': [],
+        'deck 3': [$scope.decks['deck 3'].pop(), $scope.decks['deck 3'].pop(), $scope.decks['deck 3'].pop()]
+    };
+
+    
+    $scope.buyCard = function(player, deck, number){ //TODO: make this a service i guess... - 0 because its an array
+        
+        var boardDeck = $scope.board[deck];
+        if(number < boardDeck.length){ //TODO: alert if its not. actually it doesn't matter since this is just a tutorial, but for a full game implementation...
+            var card = boardDeck.splice(number, 1)[0]; 
+            $scope.players[player].buyCard(card);
+            var gameDeck = $scope.decks[deck];
+            if(gameDeck.length > 1){
+                boardDeck.push(gameDeck.pop());
+            }
+        }
+        
+    };
     
     //welcome to splendor: this is a game about building the greatest gem factory where the winner will be the person with the most number of points.
     //this is the game layout -  as you can see, there are three levels of possible gem buildings to build, each with differing costs
@@ -41,17 +93,79 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', functio
     
     
 }]).directive('card', function($timeout, $window) {
+    var costArr = function(cost){
+        var colors = ["black","white","red","blue","green"]; //TODO: refer to factory colors instead of manually
+        var result = [];
+        for(var i = 0; i < colors.length; i++){
+            var c = colors[i];
+            if(c in cost){
+                result.push(cost[c])
+            }else{
+                result.push(0)
+            }
+        }
+        return result.join('-');
+        
+    };
+    var generateID = function(color, points, cost){
+        return color + '-' + points  + '-' + costArr(cost);
+    };
     return {
         restrict: 'E',
+        replace:true,
         scope:{
             points: '=',
-            color: '@'
+            color: '=',
+            cost: '='
         },
         link: function(scope,element,attrs){
-            scope.costDict = JSON.parse(attrs.cost);
+            scope.id = generateID(scope.color, scope.points, scope.cost);
         },
         templateUrl: '/howtoplay/card.html'
 
     };
 
+}).factory('CardFactory', function() {
+    function Card(color, points, cost) {
+        this.color = color;
+        this.points = points;
+        this.cost = cost;
+        this.coststring = JSON.stringify(this.cost);
+    }
+
+    return {
+        newCard: function(color, points, cost) {
+            return new Card(color, points, cost);
+        }
+    };
+}).factory('PlayerFactory', function() {
+    function Player(name, deck, gems) {
+        this.name = name;
+        this.deck = {//TODO: refer to factory colors instead of manually
+            "black": [],
+            "white": [], 
+            "red": [], 
+            "blue": [], 
+            "green": []
+        };
+        this.gems = { //TODO: refer to factory colors instead of manually
+            "black": 0,
+            "white": 0,
+            "red": 0,
+            "blue": 0,
+            "green": 0,
+            "gold": 0
+        };
+
+        this.buyCard = function(card){
+            this.deck[card.color].push(card);
+        }
+    }
+
+
+    return {
+        newPlayer: function(name) {
+            return new Player(name);
+        }
+    };
 });
