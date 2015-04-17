@@ -1,16 +1,20 @@
 <div id="splendor" ng-controller="SplendorCtrl">
     [[game]]
     <div class="container">
-        <button ng-click="buyCard('bob', 'deck 3', 1)">CLICK</button>
+        <button ng-click="buyCard('bob', 'deck 3', 0)">Buy Level 3</button>
+        <button ng-click="buyCard('bob', 'deck 2', 1)">Buy Level 2</button>
+        <button ng-click="buyCard('bob', 'deck 1', 2)">Buy Level 1</button>
     <div id="bob">
         <img src="/howtoplay/img/chars/bob.jpg">
         <div class="scoreboard">
             CARDS
             <div class="card-section">
                 <div ng-repeat="(i, color) in colors" class="deck">
-                    [[color]]
-                    <card ng-repeat="c in players['bob']['deck'][color]"  points="c.points" color="c.color" cost="c.cost">
-                    </card>
+                    <span class = "color-name">[[color]]</span>
+                    <div ng-repeat="(index, c) in players['bob']['deck'][color]" class="card-container">
+                        <card points="c.points" color="c.color" cost="c.cost"  >
+                        </card>
+                    </div>
                 </div>
             </div>
             
@@ -33,11 +37,11 @@
             </card>
         </div>
         <div id = "level2-cards">
-            <card ng-repeat="c in  board['deck 2']"  points="c.points" color="c.color" cost="c.cost">
+            <card ng-repeat="c in board['deck 2']"  points="c.points" color="c.color" cost="c.cost">
             </card>
         </div>
         <div id = "level1-cards">
-            <card ng-repeat="c in  board['deck 1']"  points="c.points" color="c.color" cost="c.cost">
+            <card ng-repeat="c in board['deck 1']"  points="c.points" color="c.color" cost="c.cost">
             </card>
         </div>
     </div>

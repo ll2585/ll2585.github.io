@@ -8,7 +8,7 @@
     </div>
     <div class="bottom">
         <div class="costs">
-            <div ng-repeat = "(cost_color, cost_amt) in cost" class="cost" >
+            <div ng-repeat = "(cost_color, cost_amt) in cost" class="cost" ng-if="cost_amt > 0">
                 <div class="cost-amt">{{cost_amt}}</div>
                 <div class="color {{cost_color}}">
                     &nbsp &nbsp

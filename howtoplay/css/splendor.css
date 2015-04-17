@@ -88,17 +88,15 @@
     width: 377px; /* TODO: make this responsive */
     height: 130px; /* TODO: make this responsive */
 }
-
+.card-section > .deck > .card-container{
+    margin-top: -78.75px; /* TODO: make this responsive */
+    position:relative;
+}
 .card-section > .deck{
     display: inline-block;
-    margin-top: 79px; /* TODO: make this responsive */
+    margin-top: 78.75px; /* TODO: make this responsive */
+    width: 20%;
 }
-
-.card-section > .deck > .card{
-    margin-top: -79px; /* TODO: make this responsive */
-    /* TODO: make this opaque too */
-}
-
 
 #you{
     float:right;
@@ -111,9 +109,13 @@
 }
 #board{
     clear:both;
+    display:block;
+}
+#level3-cards, #level2-cards, #level1-cards{
+    display:block;
+    clear:both;
 }
 
-
-#level3-cards > .card{
+#level3-cards > .card, #level2-cards > .card, #level1-cards > .card{
     float: right;
 }
