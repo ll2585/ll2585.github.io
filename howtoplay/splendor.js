@@ -9,6 +9,24 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
         'me': PlayerFactory.newPlayer('me'),
         'alice': PlayerFactory.newPlayer('alice')
     };
+    $scope.gemCount = {"gold": 5};
+    for(var i = 0; i < $scope.colors.length; i++){
+        $scope.gemCount[$scope.colors[i]] = 5;
+    }
+    
+    $scope.getGemCount = function(color){
+        return $scope.gemCount[color];
+    };
+    var bob = $scope.players['bob'];
+    var me = $scope.players['bob'];
+    var alice = $scope.players['bob'];
+    
+    bob.setNextPlayer(me);
+    alice.setNextPlayer(bob);
+    me.setNextPlayer(alice);
+    
+    me.setStartingPlayer();
+    
     $scope.decks = {
         'deck 1': [
             CardFactory.newCard("white", 0, {"black": 0, "white": 0, "red"  : 0, "blue" : 3, "green": 0}),
@@ -120,20 +138,199 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
         'deck 2': [$scope.decks['deck 2'].pop(), $scope.decks['deck 2'].pop(), $scope.decks['deck 2'].pop()],
         'deck 3': [$scope.decks['deck 3'].pop(), $scope.decks['deck 3'].pop(), $scope.decks['deck 3'].pop()]
     };
-
+    $scope.selected_card_to_reserve = false;
+    $scope.selected_card = false;
+    $scope.selected_card_index = -1;
+    $scope.selected_deck = null;
     
     $scope.buyCard = function(player, deck, number){ //TODO: make this a service i guess... - 0 because its an array
-        
-        var boardDeck = $scope.board[deck];
+        $scope.show_alert = false;
+        var fromReserved = false;
+        var player = $scope.getPlayer(player);
+        var boardDeck;
+        var gameDeck;
+        if(deck == 'reserved'){
+            boardDeck = player.getReservedCards();
+        }else{
+            boardDeck = $scope.board[deck];
+            gameDeck = $scope.decks[deck];
+        }
         if(number < boardDeck.length){ //TODO: alert if its not. actually it doesn't matter since this is just a tutorial, but for a full game implementation...
-            var card = boardDeck.splice(number, 1)[0]; 
-            $scope.players[player].buyCard(card);
-            var gameDeck = $scope.decks[deck];
-            if(gameDeck.length > 0){
-                boardDeck.push(gameDeck.pop());
+            var card = boardDeck[number];
+            if(player.canBuy(card)){
+                boardDeck.splice(number, 1)[0];
+                var amt_repaid = player.buyCard(card); //its really buy and return the amt repaid
+                for(var g in amt_repaid){
+                    $scope.gemCount[g] += amt_repaid[g];
+                }
+                $scope.resetSelectCard();
+                
+                if(deck != 'reserved' && gameDeck.length > 0 ){
+                    boardDeck.splice(number, 0, gameDeck.pop());
+                }
+            }else{
+                //someone you could buy it before but not now.
             }
+            
         }
         
+    };
+
+    $scope.reserveCard = function(player, deck, number){ //TODO: make this a service i guess... - 0 because its an array
+        var boardDeck = $scope.board[deck];
+        if(number < boardDeck.length){ //TODO: alert if its not. actually it doesn't matter since this is just a tutorial, but for a full game implementation...
+            var player = $scope.getPlayer(player);
+            var card = boardDeck[number];
+            boardDeck.splice(number, 1)[0];
+            player.reserveCard(card); //its really buy and return the amt repaid
+            if($scope.getGemCount("gold")>=1){
+                player.addGem("gold");
+                $scope.gemCount["gold"] -= 1;
+            }
+            $scope.resetSelectCard();
+            var gameDeck = $scope.decks[deck];
+            if(gameDeck.length > 0){
+                boardDeck.splice(number, 0, gameDeck.pop());
+            }
+            
+
+        }
+
+    };
+
+    $scope.takeGems = function(player){ //TODO: make this a service i guess... - 0 because its an array
+        for(var i = 0; i < $scope.selected_gems.length; i++){
+            var color = $scope.selected_gems[i];
+            if($scope.gemCount[color] > 0){
+                $scope.getPlayer(player).addGem(color);
+                $scope.gemCount[color] -= 1;
+            }
+        }
+        if($scope.selected_gems.length == 1){
+            var color = $scope.selected_gems[0];
+            if($scope.gemCount[color] > 0){
+                $scope.getPlayer(player).addGem(color);
+                $scope.gemCount[color] -= 1;
+            }
+        }
+        $scope.resetSelectGems();
+        
+    };
+    $scope.resetSelectGems = function(){
+        $scope.want_two_gems = false;
+        $scope.want_three_gems = false;
+        $scope.selected_gems = [];
+    };
+    $scope.resetSelectCard = function(){
+        $scope.selected_card = false;
+        $scope.selected_card_to_reserve = false;
+        $scope.selected_card_index = -1;
+        $scope.selected_deck = null;
+    };
+    
+    
+    $scope.showBuyButton = function(deck, index){
+        $scope.show_alert = false;
+        $scope.selected_card_to_reserve = false //enable it later
+        //TODO: check for if you can afford it
+        $scope.resetSelectGems();
+        if (index == $scope.selected_card_index && deck == $scope.selected_deck) {
+            $scope.resetSelectCard();
+        } else {
+            $scope.selected_card = true;
+            $scope.selected_card_index = index;
+            $scope.selected_deck = deck;
+            var boardDeck;
+            var player = $scope.getPlayer('bob');
+            if(deck == 'reserved'){
+                boardDeck = player.getReservedCards();
+            }else{
+                boardDeck = $scope.board[deck];
+            }
+           
+            
+            var card = boardDeck[index];
+            if (!player.canBuy(card)) {
+                $scope.show_alert = true;
+                $scope.alert_message = "Cannot afford.";
+                $scope.selected_card = false;
+            }
+        }
+    };
+
+    $scope.showReserveButton = function(deck, index){
+        $scope.show_alert = false; //because we also select it to buy
+        //TODO: check for if you can afford it
+        if(index == $scope.selected_card_index && deck == $scope.selected_deck){
+            var player = $scope.getPlayer('bob');
+            if(player.getReservedCards().length < 3){
+                $scope.selected_card_to_reserve = true;
+            }
+            
+        }else{
+            $scope.selected_card_to_reserve = false;
+        }
+    };
+    
+    $scope.want_two_gems = false;
+    $scope.want_three_gems = false;
+    $scope.selected_gems = [];
+    
+    $scope.getPlayerBuildingCount = function(playername, color){
+        return $scope.getPlayer(playername).getBuildingCount(color);
+    };
+
+    $scope.getPlayerGemCount = function(playername, color){
+        return $scope.getPlayer(playername).getGemCount(color);
+    };
+
+    $scope.getPlayer = function(playername){
+        return $scope.players[playername]
+    };
+
+    $scope.showSelectGem = function(color){
+        $scope.resetSelectCard();
+        $scope.show_alert = false;
+        //TODO: check for if you can afford it
+        if($scope.selected_gems.length == 0){
+            if($scope.gemCount[color] >= 1){
+                $scope.selected_gems.push(color);
+                if($scope.gemCount[color] >= 4){
+                    $scope.want_three_gems = false;
+                    $scope.want_two_gems = true;
+                }else{
+                    $scope.alert_message = "Less than 4 " + color + " gems.";
+                    $scope.show_alert = true;
+                }
+            }
+            
+        }else if($scope.selected_gems.indexOf(color) > -1){
+            //deselected it
+            var index = $scope.selected_gems.indexOf(color);
+            $scope.selected_gems.splice(index, 1);
+            $scope.want_three_gems = false;
+            $scope.want_two_gems = false;
+            if($scope.selected_gems.length == 1){
+                if($scope.gemCount[color] >= 4){
+                    $scope.want_three_gems = false;
+                    $scope.want_two_gems = true;
+                }else{
+                    $scope.alert_message = "Less than 4 " + color + " gems.";
+                    $scope.show_alert = true;
+                }
+            }
+        }else if($scope.selected_gems.length < 3){
+            if($scope.gemCount[color] >= 1){
+                $scope.selected_gems.push(color);
+                $scope.want_three_gems = false;
+                $scope.want_two_gems = false;
+                if($scope.selected_gems.length == 3){
+                    $scope.want_three_gems = true;
+                }
+            }
+            //TODO: check if there are only 2 gems available
+        }
+
     };
     
     //welcome to splendor: this is a game about building the greatest gem factory where the winner will be the person with the most number of points.
@@ -233,18 +430,81 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
         this.gems = { //TODO: refer to factory colors instead of manually
             "black": 0,
             "white": 0,
-            "red": 0,
+            "red": 70,
             "blue": 0,
             "green": 0,
             "gold": 0
         };
+        
+        this.reservedCards = [];
 
         this.buyCard = function(card){
+            var card_costs = card.cost;
+            var gold_needed = 0;
+            var amt_repaid = {'gold': 0};
+            for(var c in card_costs){
+                var gem_cost = Math.max(0, card_costs[c] - this.deck[c].length);
+                if(this.gems[c] < gem_cost){
+                    gold_needed += (gem_cost - this.gems[c])
+                }
+                amt_repaid[c] = Math.min(this.gems[c],  gem_cost);
+                this.gems[c] -= amt_repaid[c];
+                
+            }
+            this.gems["gold"] -= gold_needed;
             this.deck[card.color].push(card);
-        }
+            amt_repaid["gold"] = gold_needed;
+            return amt_repaid;
+        };
+        
+        
+        
+        this.canBuy = function(card){
+            var card_costs = card.cost;
+            var gold_needed = 0;
+            for(var c in card_costs){
+                var amt_avail = this.gems[c] + this.deck[c].length;
+                if(amt_avail < card_costs[c]){
+                    gold_needed += (card_costs[c] - amt_avail)
+                }
+            }
+            return gold_needed <= this.gems['gold'];
+        };
+        
+        this.addGem = function(color){
+            this.gems[color] += 1;
+        };
         
         this.points = 0;
         this.firstPlayer = false;
+        
+        this.nextPlayer = null;
+        
+        this.setNextPlayer = function(player){
+            this.nextPlayer = player;
+        };
+        
+        this.setStartingPlayer = function(){
+            this.firstPlayer = true;
+        };
+        
+        this.getGemCount = function(color){
+            return this.gems[color];
+        };
+
+        this.getBuildingCount = function(color){
+            return this.deck[color].length;
+        };
+        
+        this.reserveCard = function(card){
+            if(this.getReservedCards().length < 3){
+                this.reservedCards.push(card);
+            }
+        }
+        
+        this.getReservedCards = function(){
+            return this.reservedCards;
+        }
     }
 
 

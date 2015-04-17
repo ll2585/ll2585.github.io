@@ -1,6 +1,6 @@
 var howToPlayApp = angular.module('howToPlayApp', ['SplendorCtrl', 'ngJoyRide'], function($interpolateProvider) {
-    $interpolateProvider.startSymbol('[[');
-    $interpolateProvider.endSymbol(']]');
+    $interpolateProvider.startSymbol('~~');
+    $interpolateProvider.endSymbol('%$');
 });
 
 howToPlayApp.controller('MainCtrl', function($scope){

@@ -34,26 +34,46 @@
     height: 80%;
     width: 28%;
     position:absolute;
-
 }
-.card .red {
+.gem{
+    display: inline-block;
+    width: 75px; /*TODO: MAKE THIS DYNAMIC */
+}
+.gem > .color{
+    display: inline-block;
+    height: 100%;
+    width: 100%;
+}
+.gem-count{
+    display: inline-block;
+    width: 100%; /*TODO: MAKE THIS DYNAMIC */
+    font-size: small;
+}
+.card .red, .gem .red  {
     background: url(../img/splendor/red.svg);
     background-size: 100% 100%;
 }
-.card .blue {
+.card .blue, .gem .blue  {
     background: url(../img/splendor/blue.svg);
     background-size: 100% 100%;
 }
-.card .black {
+.card .black, .gem .black  {
     background: url(../img/splendor/black.svg);
     background-size: 100% 100%;
 }
-.card .white {
+.card .white, .gem .white  {
     background: url(../img/splendor/white.svg);
     background-size: 100% 100%;
 }
-.card .green {
+.card .green, .gem .green  {
     background: url(../img/splendor/green.svg);
+    background-size: 100% 100%;
+}
+.gems{
+    position: relative;
+}
+.gem .gold  {
+    background: url(../img/splendor/gold.svg);
     background-size: 100% 100%;
 }
 .card > .bottom > .costs > .cost{
@@ -88,14 +108,16 @@
     width: 377px; /* TODO: make this responsive */
     height: 130px; /* TODO: make this responsive */
 }
-.card-section > .deck > .card-container{
+.scoreboard > .color-category > .deck > .card-container{
     margin-top: -78.75px; /* TODO: make this responsive */
     position:relative;
 }
-.card-section > .deck{
+.scoreboard > .color-category{
     display: inline-block;
-    margin-top: 78.75px; /* TODO: make this responsive */
     width: 20%;
+}
+.scoreboard > .color-category > .deck{
+    margin-top: 78.75px; /* TODO: make this responsive */
 }
 
 #you{
@@ -108,14 +130,31 @@
     float:left;
 }
 #board{
+    position:relative;
     clear:both;
-    display:block;
 }
 #level3-cards, #level2-cards, #level1-cards{
-    display:block;
-    clear:both;
+    position:relative;
+    margin: 0 auto;
+    width:100%;
 }
 
 #level3-cards > .card, #level2-cards > .card, #level1-cards > .card{
-    float: right;
+    position: relative;
+    display: inline-block;
+    text-align: left;
+    
+}
+
+
+.selected{
+    background-color: lightgray;
+}
+
+.image-and-stats{
+    float:left;
+}
+
+.image-and-stats > .reserved-cards {
+    float:left;
 }
