@@ -1,12 +1,29 @@
 angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFactory', 'PlayerFactory', function($scope, CardFactory, PlayerFactory) {
-    
+    function shuffle(array) {
+        var currentIndex = array.length, temporaryValue, randomIndex ;
+
+        // While there remain elements to shuffle...
+        while (0 !== currentIndex) {
+
+            // Pick a remaining element...
+            randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex -= 1;
+
+            // And swap it with the current element.
+            temporaryValue = array[currentIndex];
+            array[currentIndex] = array[randomIndex];
+            array[randomIndex] = temporaryValue;
+        }
+
+        return array;
+    }
     $scope.game = "SPLENDOR";
     
     $scope.colors = ["black","white","red","blue","green"];
     
     $scope.players = {
         'bob': PlayerFactory.newPlayer('bob'),
-        'me': PlayerFactory.newPlayer('me'),
+        'you': PlayerFactory.newPlayer('you'),
         'alice': PlayerFactory.newPlayer('alice')
     };
     $scope.gemCount = {"gold": 5};
@@ -18,14 +35,14 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
         return $scope.gemCount[color];
     };
     var bob = $scope.players['bob'];
-    var me = $scope.players['bob'];
-    var alice = $scope.players['bob'];
+    var you = $scope.players['you'];
+    var alice = $scope.players['alice'];
     
-    bob.setNextPlayer(me);
+    bob.setNextPlayer(you);
     alice.setNextPlayer(bob);
-    me.setNextPlayer(alice);
-    
-    me.setStartingPlayer();
+    you.setNextPlayer(alice);
+
+    you.setStartingPlayer();
     
     $scope.decks = {
         'deck 1': [
@@ -133,6 +150,9 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
             CardFactory.newCard("black", 3, {"black": 0, "white": 3, "red"  : 3, "blue" : 3, "green": 5})
         ]
     };
+    for(var deck in $scope.decks){
+        shuffle($scope.decks[deck]);
+    }
     $scope.board = {
         'deck 1': [$scope.decks['deck 1'].pop(), $scope.decks['deck 1'].pop(), $scope.decks['deck 1'].pop()],
         'deck 2': [$scope.decks['deck 2'].pop(), $scope.decks['deck 2'].pop(), $scope.decks['deck 2'].pop()],
@@ -177,6 +197,7 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
     };
 
     $scope.reserveCard = function(player, deck, number){ //TODO: make this a service i guess... - 0 because its an array
+        $scope.show_alert = false;
         var boardDeck = $scope.board[deck];
         if(number < boardDeck.length){ //TODO: alert if its not. actually it doesn't matter since this is just a tutorial, but for a full game implementation...
             var player = $scope.getPlayer(player);
@@ -241,7 +262,7 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
             $scope.selected_card_index = index;
             $scope.selected_deck = deck;
             var boardDeck;
-            var player = $scope.getPlayer('bob');
+            var player = $scope.getPlayer('you');
             if(deck == 'reserved'){
                 boardDeck = player.getReservedCards();
             }else{
@@ -256,14 +277,17 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
                 $scope.selected_card = false;
             }
         }
+
+
     };
 
     $scope.showReserveButton = function(deck, index){
-        $scope.show_alert = false; //because we also select it to buy
+
         //TODO: check for if you can afford it
         if(index == $scope.selected_card_index && deck == $scope.selected_deck){
-            var player = $scope.getPlayer('bob');
+            var player = $scope.getPlayer('you');
             if(player.getReservedCards().length < 3){
+                //because we also select it to buy
                 $scope.selected_card_to_reserve = true;
             }
             
@@ -284,6 +308,9 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
         return $scope.getPlayer(playername).getGemCount(color);
     };
 
+    $scope.getPlayerPoints = function(playername){
+        return $scope.getPlayer(playername).getPoints();
+    }
     $scope.getPlayer = function(playername){
         return $scope.players[playername]
     };
@@ -311,11 +338,12 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
             $scope.want_three_gems = false;
             $scope.want_two_gems = false;
             if($scope.selected_gems.length == 1){
-                if($scope.gemCount[color] >= 4){
+                var color_left = $scope.selected_gems[0];
+                if($scope.gemCount[color_left] >= 4){
                     $scope.want_three_gems = false;
                     $scope.want_two_gems = true;
                 }else{
-                    $scope.alert_message = "Less than 4 " + color + " gems.";
+                    $scope.alert_message = "Less than 4 " + color_left + " gems.";
                     $scope.show_alert = true;
                 }
             }
@@ -428,13 +456,14 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
             "green": []
         };
         this.gems = { //TODO: refer to factory colors instead of manually
-            "black": 0,
-            "white": 0,
+            "black": 70,
+            "white": 70,
             "red": 70,
-            "blue": 0,
-            "green": 0,
-            "gold": 0
+            "blue": 70,
+            "green": 70,
+            "gold": 70
         };
+        this.points = 0;
         
         this.reservedCards = [];
 
@@ -449,15 +478,14 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
                 }
                 amt_repaid[c] = Math.min(this.gems[c],  gem_cost);
                 this.gems[c] -= amt_repaid[c];
-                
+
             }
+            this.points += card.points;
             this.gems["gold"] -= gold_needed;
             this.deck[card.color].push(card);
             amt_repaid["gold"] = gold_needed;
             return amt_repaid;
         };
-        
-        
         
         this.canBuy = function(card){
             var card_costs = card.cost;
@@ -500,11 +528,15 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
             if(this.getReservedCards().length < 3){
                 this.reservedCards.push(card);
             }
-        }
+        };
         
         this.getReservedCards = function(){
             return this.reservedCards;
-        }
+        };
+
+        this.getPoints = function(){
+            return this.points;
+        };
     }
 
 

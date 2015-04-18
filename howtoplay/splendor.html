@@ -1,43 +1,65 @@
 <div id="splendor" ng-controller="SplendorCtrl">
     <div class="container">
-        
-    <div id="bob">
-        <div class="image-and-stats">
-            <img src="/howtoplay/img/chars/bob.jpg">
-            <div class="gold-count">Gold: ~~getPlayerGemCount('bob', 'gold')%$</div>
-            <div class="reserved-cards" align="center">
-                <card ng-repeat="(index, c) in players['bob']['reservedCards']"  points="c.points" color="c.color" cost="c.cost" ng-click="showBuyButton('reserved', index)" ng-class="{'selected': selected_deck == 'reserved' && selected_card_index == index}" >
-                </card>
-            </div>
-        </div>
-        <div class="scoreboard">
-            <div ng-repeat="(i, color) in colors" class="color-category">
-                <div class="gem">
-                    <span class = "color ~~color%$" >&nbsp</span>
-                    <div class="gem-count">
-                        <div>Gems: ~~getPlayerGemCount('bob', color)%$</div>
-                        <div>Buildings: ~~getPlayerBuildingCount('bob', color)%$</div>
-                        <div>Total: ~~getPlayerGemCount('bob', color)+getPlayerBuildingCount('bob', color)%$</div>
-                    </div>
-                </div>
-                <div class="deck">
-                    <div ng-repeat="(index, c) in players['bob']['deck'][color]" class="card-container">
-                        <card points="c.points" color="c.color" cost="c.cost"  >
-                        </card>
-                    </div>
+    <div id="bob-and-me">
+        <div id="you">
+            <div class="image-and-stats">
+                <img src="/howtoplay/img/chars/you.png" style="width:95px; height:130px;">
+                <div class="point-count">Points: ~~getPlayerPoints('you')%$</div>
+                <div class="gold-count">Gold: ~~getPlayerGemCount('you', 'gold')%$</div>
+                <div class="reserved-cards">
+                    <card ng-repeat="(index, c) in players['you']['reservedCards']"  points="c.points" color="c.color" cost="c.cost" ng-click="showBuyButton('reserved', index)" ng-class="{'selected': selected_deck == 'reserved' && selected_card_index == index}" >
+                    </card>
                 </div>
             </div>
-        </div>
-    </div>
-    <div id="you">
-        <img src="/howtoplay/img/chars/you.png" style="height:130px; width:95px;">
-        <div class="scoreboard">
-            CARDS
-            <div ng-repeat="(i, color) in colors">
-                <card ng-repeat="c in players['me']['deck'][color]"  points="c.points" color="c.color" cost="c.cost">
-                </card>
+            <div class="scoreboard">
+                <div ng-repeat="(i, color) in colors" class="color-category">
+                    <div class="gem">
+                        <span class = "color ~~color%$" >&nbsp</span>
+                        <div class="gem-count">
+                            <div>Gems: ~~getPlayerGemCount('you', color)%$</div>
+                            <div>Buildings: ~~getPlayerBuildingCount('you', color)%$</div>
+                            <div>Total: ~~getPlayerGemCount('you', color)+getPlayerBuildingCount('you', color)%$</div>
+                        </div>
+                    </div>
+                    <div class="deck">
+                        <div ng-repeat="(index, c) in players['you']['deck'][color]" class="card-container">
+                            <card points="c.points" color="c.color" cost="c.cost"  >
+                            </card>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
+        <div id="alice">
+            <div class="image-and-stats">
+                <img src="/howtoplay/img/chars/alice.jpg">
+                <div class="point-count">Points: ~~getPlayerPoints('alice')%$</div>
+                <div class="gold-count">Gold: ~~getPlayerGemCount('alice', 'gold')%$</div>
+                <div class="reserved-cards">
+                    <card ng-repeat="(index, c) in players['alice']['reservedCards']"  points="c.points" color="c.color" cost="c.cost" ng-click="showBuyButton('reserved', index)" ng-class="{'selected': selected_deck == 'reserved' && selected_card_index == index}" >
+                    </card>
+                </div>
+            </div>
+            <div class="scoreboard">
+                <div ng-repeat="(i, color) in colors" class="color-category">
+                    <div class="gem">
+                        <span class = "color ~~color%$" >&nbsp</span>
+                        <div class="gem-count">
+                            <div>Gems: ~~getPlayerGemCount('alice', color)%$</div>
+                            <div>Buildings: ~~getPlayerBuildingCount('alice', color)%$</div>
+                            <div>Total: ~~getPlayerGemCount('alice', color)+getPlayerBuildingCount('alice', color)%$</div>
+                        </div>
+                    </div>
+                    <div class="deck">
+                        <div ng-repeat="(index, c) in players['alice']['deck'][color]" class="card-container">
+                            <card points="c.points" color="c.color" cost="c.cost"  >
+                            </card>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
     <div id="board">
         <div id = "level3-cards" align="center">
@@ -53,8 +75,8 @@
             </card>
         </div>
         <div class="gems" align="center">
-            <div ng-repeat="(i, color) in colors" class="gem" ng-class="{'selected': selected_gems.indexOf(color) > -1}">
-                <span class = "color ~~color%$" ng-click="showSelectGem(color)" >&nbsp</span>
+            <div ng-repeat="(i, color) in colors" class="gem" ng-class="{'selected': selected_gems.indexOf(color) > -1}" ng-click="showSelectGem(color)" >
+                <span class = "color ~~color%$" >&nbsp</span>
                 
                 <span class = "gem-count">~~getGemCount(color)%$</span>
             </div>
@@ -63,24 +85,44 @@
                 <span class = "gem-count">~~getGemCount('gold')%$</span>
             </div>
         </div>
-        <div class="buttons">
-            <button ng-click="buyCard('bob', selected_deck, selected_card_index)" ng-show="selected_card">Buy Card</button>
-            <button ng-click="reserveCard('bob', selected_deck, selected_card_index)" ng-show="selected_card_to_reserve">Reserve Card</button>
-            <span ng-if="show_alert"> ~~alert_message%$</span>
-            <button ng-click="takeGems('bob')" ng-show="want_two_gems">Take Two ~~selected_gems[0]%$</button>
-            <button ng-click="takeGems('bob')" ng-show="want_three_gems">Take 1 ~~selected_gems[0]%$, 1 ~~selected_gems[1]%$, and 1 ~~selected_gems[2]%$ </button>
-        </div>
     </div>
-    <div id="alice">
-        <img src="/howtoplay/img/chars/alice.jpg">
-        <div class="scoreboard">
-            CARDS
-            <div ng-repeat="(i, color) in colors">
-                <card ng-repeat="c in players['alice']['deck'][color]"  points="c.points" color="c.color" cost="c.cost">
-                </card>
+        <div class="buttons">
+            <button ng-click="buyCard('you', selected_deck, selected_card_index)" ng-show="selected_card">Buy Card</button>
+            <button ng-click="reserveCard('you', selected_deck, selected_card_index)" ng-show="selected_card_to_reserve">Reserve Card</button>
+            <span ng-if="show_alert"> ~~alert_message%$</span>
+            <button ng-click="takeGems('you')" ng-show="want_two_gems">Take Two ~~selected_gems[0]%$</button>
+            <button ng-click="takeGems('you')" ng-show="want_three_gems">Take 1 ~~selected_gems[0]%$, 1 ~~selected_gems[1]%$, and 1 ~~selected_gems[2]%$ </button>
+        </div>
+        <div id="bob">
+            <div class="image-and-stats">
+                <img src="/howtoplay/img/chars/bob.jpg">
+                <div class="point-count">Points: ~~getPlayerPoints('bob')%$</div>
+                <div class="gold-count">Gold: ~~getPlayerGemCount('bob', 'gold')%$</div>
+                <div class="reserved-cards">
+                    <card ng-repeat="(index, c) in players['bob']['reservedCards']"  points="c.points" color="c.color" cost="c.cost" ng-click="showBuyButton('reserved', index)" ng-class="{'selected': selected_deck == 'reserved' && selected_card_index == index}" >
+                    </card>
+                </div>
+            </div>
+            <div class="scoreboard">
+                <div ng-repeat="(i, color) in colors" class="color-category">
+                    <div class="gem">
+                        <span class = "color ~~color%$" >&nbsp</span>
+                        <div class="gem-count">
+                            <div>Gems: ~~getPlayerGemCount('bob', color)%$</div>
+                            <div>Buildings: ~~getPlayerBuildingCount('bob', color)%$</div>
+                            <div>Total: ~~getPlayerGemCount('bob', color)+getPlayerBuildingCount('bob', color)%$</div>
+                        </div>
+                    </div>
+                    <div class="deck">
+                        <div ng-repeat="(index, c) in players['bob']['deck'][color]" class="card-container">
+                            <card points="c.points" color="c.color" cost="c.cost"  >
+                            </card>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-    </div>
 </div>
+~~randomID%$
 <link href="/howtoplay/css/splendor.css?v=~~randomID%$" rel="stylesheet">

@@ -121,17 +121,22 @@
 }
 
 #you{
-    float:right;
+    display:inline-block;
+    margin-right: 20px;
 }
 #bob{
-    float:left;
+    display:inline-block;
+
 }
 #alice{
-    float:left;
+    display:inline-block;
+    margin-left: 20px;
 }
 #board{
     position:relative;
     clear:both;
+    width: 500px; /*TODO: make this responsive */
+    margin: 0 auto;
 }
 #level3-cards, #level2-cards, #level1-cards{
     position:relative;
@@ -156,5 +161,5 @@
 }
 
 .image-and-stats > .reserved-cards {
-    float:left;
+    height: 0px;
 }
