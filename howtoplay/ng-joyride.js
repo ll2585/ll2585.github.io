@@ -360,12 +360,15 @@
                 'ngJoyRide': '=',
                 'config': '=',
                 'onFinish': '&',
-                'onSkip': '&'
+                'onSkip': '&',
+                'curStep': '='
 
             },
             link: function (scope, element, attrs) {
                 var steps = [];
-                var currentStepCount = 0;
+                if(scope.curStep == null || scope.curStep === undefined){ scope.curStep == 0;}
+                console.log(scope.curStep);
+                var currentStepCount = scope.curStep;
                 var options = {
                     config : scope.config,
                     templateUri: attrs.templateUri
@@ -462,12 +465,18 @@
                     if(newval){
                         destroyJoyride();
                         initializeJoyride();
-                        currentStepCount = 0;
+                        currentStepCount = scope.curStep;
                         dropCurtain(true);
                         cleanUpPreviousStep();
                         generateStep();
                     } else {
                         destroyJoyride();
+                    }
+                });
+
+                scope.$watch('curStep', function (newval, oldval) {
+                    if(newval != oldval){
+                        currentStepCount = newval;
                     }
                 });
                 function destroyJoyride(){
@@ -540,7 +549,6 @@
                             if(newval){
                                 if(newval.index !== undefined){
                                     if(newval.type == 'element'){
-                                        console.log(newval)
                                         steps[newval.index].reloadConfig(newval, newval.index === (options.config.length-1));
                                     }
                                 }

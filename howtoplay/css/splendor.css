@@ -87,30 +87,30 @@
     width: 100%; /*TODO: MAKE THIS DYNAMIC */
     font-size: small;
 }
-.card .red, .gem .red, .noble .red  {
+.card .red, .gem .red, .noble .red, .modal > .row .red  {
     background: url(../img/splendor/red.svg);
     background-size: 100% 100%;
 }
-.card .blue, .gem .blue, .noble .blue  {
+.card .blue, .gem .blue, .noble .blue, .modal > .row .blue  {
     background: url(../img/splendor/blue.svg);
     background-size: 100% 100%;
 }
-.card .black, .gem .black, .noble .black  {
+.card .black, .gem .black, .noble .black, .modal > .row .black  {
     background: url(../img/splendor/black.svg);
     background-size: 100% 100%;
 }
-.card .white, .gem .white , .noble .white {
+.card .white, .gem .white , .noble .white, .modal > .row .white {
     background: url(../img/splendor/white.svg);
     background-size: 100% 100%;
 }
-.card .green, .gem .green, .noble .green  {
+.card .green, .gem .green, .noble .green, .modal > .row .green  {
     background: url(../img/splendor/green.svg);
     background-size: 100% 100%;
 }
 .gems{
     position: relative;
 }
-.gem .gold  {
+.gem .gold, .modal > .row .gold  {
     background: url(../img/splendor/gold.svg);
     background-size: 100% 100%;
 }
@@ -187,15 +187,12 @@
 
 #you{
     display:inline-block;
-    margin-right: 20px;
 }
 #bob{
     display:inline-block;
-
 }
 #alice{
     display:inline-block;
-    margin-left: 20px;
 }
 #board{
     position:relative;
@@ -216,6 +213,9 @@
     
 }
 
+.player-block{
+    height:300px;/*TODO: make this responsive */
+}
 
 .selected{
     background-color: lightgray;
@@ -240,4 +240,29 @@
 .nobles-and-cards > .nobles > .noble-container{
     display: inline-block;
     position:relative;
+}
+
+/* overlay styles, all needed */
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 10;
+}
+
+/* just some content with arbitrary styles for explanation purposes */
+.modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    margin-top: -300px; /*TODO: make this responsive */
+    margin-left: -150px; /*TODO: make this responsive */
+    background-color: #f1c40f;
+    border-radius: 5px;
+    text-align: center;
+    z-index: 11; /* 1px higher than the overlay layer */
+    display: inline-block;
 }
