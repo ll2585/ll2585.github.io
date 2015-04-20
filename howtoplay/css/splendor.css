@@ -35,6 +35,44 @@
     width: 28%;
     position:absolute;
 }
+.noble{
+    width: 75px;
+    height: 105px;
+    outline: black solid thin;
+    background-color: #ffffff;
+}
+
+.noble > .top{
+    height:25%;
+    outline: black solid thin;
+    position: relative;
+}
+.noble > .top > .noble-label{
+    font-size: large;
+    color: #ffffff;
+    text-shadow:
+    -1px -1px 0 #000,
+    1px -1px 0 #000,
+    -1px 1px 0 #000,
+    1px 1px 0 #000;
+    left: 5px;
+    width: 25%;
+}
+.noble > .top > .points{
+    font-size: large;
+    color: #ffffff;
+    text-shadow:
+    -1px -1px 0 #000,
+    1px -1px 0 #000,
+    -1px 1px 0 #000,
+    1px 1px 0 #000;
+    right: 5px;
+    width: 25%;
+
+    display: inline-block;
+    position:absolute;
+}
+
 .gem{
     display: inline-block;
     width: 75px; /*TODO: MAKE THIS DYNAMIC */
@@ -49,23 +87,23 @@
     width: 100%; /*TODO: MAKE THIS DYNAMIC */
     font-size: small;
 }
-.card .red, .gem .red  {
+.card .red, .gem .red, .noble .red  {
     background: url(../img/splendor/red.svg);
     background-size: 100% 100%;
 }
-.card .blue, .gem .blue  {
+.card .blue, .gem .blue, .noble .blue  {
     background: url(../img/splendor/blue.svg);
     background-size: 100% 100%;
 }
-.card .black, .gem .black  {
+.card .black, .gem .black, .noble .black  {
     background: url(../img/splendor/black.svg);
     background-size: 100% 100%;
 }
-.card .white, .gem .white  {
+.card .white, .gem .white , .noble .white {
     background: url(../img/splendor/white.svg);
     background-size: 100% 100%;
 }
-.card .green, .gem .green  {
+.card .green, .gem .green, .noble .green  {
     background: url(../img/splendor/green.svg);
     background-size: 100% 100%;
 }
@@ -102,7 +140,34 @@
     left: 5px;
 }
 
+.noble > .bottom > .requirements > .requirement{
+    left: 2px;
+    height: 100%;
+    width: 100%;
+    display: inline-block;
+}
+.noble > .bottom > .requirements > .requirement > .requirement-amt{
+    height: 100%;
+    width: 16px; /* TODO: make this responsive eventually */
+    display: inline;
+}
+.noble > .bottom > .requirements > .requirement > .color{
+    height: 100%;
+    display: inline;
+    border: 1px solid;
+}
+.noble > .bottom {
+    height:75%;
+    position: relative;
+}
+.noble > .bottom > .requirements{
+    position: absolute;
+    display: inline-block;
+    bottom:0;
+    left: 5px;
+}
 .scoreboard{
+    display:block;
     border: 1px solid black;
     float:right;
     width: 377px; /* TODO: make this responsive */
@@ -138,13 +203,13 @@
     width: 500px; /*TODO: make this responsive */
     margin: 0 auto;
 }
-#level3-cards, #level2-cards, #level1-cards{
+#level3-cards, #level2-cards, #level1-cards, #nobles{
     position:relative;
     margin: 0 auto;
     width:100%;
 }
 
-#level3-cards > .card, #level2-cards > .card, #level1-cards > .card{
+#level3-cards > .card, #level2-cards > .card, #level1-cards > .card, #nobles > .noble{
     position: relative;
     display: inline-block;
     text-align: left;
@@ -162,4 +227,17 @@
 
 .image-and-stats > .reserved-cards {
     height: 0px;
+}
+
+.nobles-and-cards{
+    float:right;
+}
+
+.nobles-and-cards > .nobles {
+    position:relative;
+}
+
+.nobles-and-cards > .nobles > .noble-container{
+    display: inline-block;
+    position:relative;
 }

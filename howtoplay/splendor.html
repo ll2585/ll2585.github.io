@@ -11,20 +11,28 @@
                     </card>
                 </div>
             </div>
-            <div class="scoreboard">
-                <div ng-repeat="(i, color) in colors" class="color-category">
-                    <div class="gem">
-                        <span class = "color ~~color%$" >&nbsp</span>
-                        <div class="gem-count">
-                            <div>Gems: ~~getPlayerGemCount('you', color)%$</div>
-                            <div>Buildings: ~~getPlayerBuildingCount('you', color)%$</div>
-                            <div>Total: ~~getPlayerGemCount('you', color)+getPlayerBuildingCount('you', color)%$</div>
-                        </div>
+            <div class = 'nobles-and-cards'>
+                <div class="nobles">
+                    <div ng-repeat="(index, c) in players['you']['nobles']" class="noble-container">
+                        <noble points="c.points" requirements="c.requirements"  >
+                        </noble>
                     </div>
-                    <div class="deck">
-                        <div ng-repeat="(index, c) in players['you']['deck'][color]" class="card-container">
-                            <card points="c.points" color="c.color" cost="c.cost"  >
-                            </card>
+                </div>
+                <div class="scoreboard">
+                    <div ng-repeat="(i, color) in colors" class="color-category">
+                        <div class="gem">
+                            <span class = "color ~~color%$" >&nbsp</span>
+                            <div class="gem-count">
+                                <div>Gems: ~~getPlayerGemCount('you', color)%$</div>
+                                <div>Buildings: ~~getPlayerBuildingCount('you', color)%$</div>
+                                <div>Total: ~~getPlayerGemCount('you', color)+getPlayerBuildingCount('you', color)%$</div>
+                            </div>
+                        </div>
+                        <div class="deck">
+                            <div ng-repeat="(index, c) in players['you']['deck'][color]" class="card-container">
+                                <card points="c.points" color="c.color" cost="c.cost"  >
+                                </card>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -40,6 +48,19 @@
                     </card>
                 </div>
             </div>
+            <div class="nobles">
+                <div ng-repeat="(index, c) in players['alice']['nobles']" class="noble-container">
+                    <noble points="c.points" requirements="c.requirements"  >
+                    </noble>
+                </div>
+            </div>
+            <div class = 'nobles-and-cards'>
+                <div class="nobles">
+                    <div ng-repeat="(index, c) in players['alice']['nobles']" class="noble-container">
+                        <noble points="c.points" requirements="c.requirements"  >
+                        </noble>
+                    </div>
+                </div>
             <div class="scoreboard">
                 <div ng-repeat="(i, color) in colors" class="color-category">
                     <div class="gem">
@@ -58,10 +79,15 @@
                     </div>
                 </div>
             </div>
+                </div>
         </div>
 
     </div>
     <div id="board">
+        <div id = "nobles" align="center">
+            <noble ng-repeat="(index, c) in board_nobles"  points="c.points" requirements="c.requirements" >
+            </noble>
+        </div>
         <div id = "level3-cards" align="center">
             <card ng-repeat="(index, c) in board['deck 3']"  points="c.points" color="c.color" cost="c.cost" ng-click="showBuyButton('deck 3', index); showReserveButton('deck 3', index)" ng-class="{'selected': selected_deck == 'deck 3' && selected_card_index == index}" >
             </card>
@@ -103,6 +129,13 @@
                     </card>
                 </div>
             </div>
+            <div class = 'nobles-and-cards'>
+                <div class="nobles">
+                    <div ng-repeat="(index, c) in players['bob']['nobles']" class="noble-container">
+                        <noble points="c.points" requirements="c.requirements"  >
+                        </noble>
+                    </div>
+                </div>
             <div class="scoreboard">
                 <div ng-repeat="(i, color) in colors" class="color-category">
                     <div class="gem">
@@ -119,6 +152,7 @@
                             </card>
                         </div>
                     </div>
+                </div>
                 </div>
             </div>
         </div>

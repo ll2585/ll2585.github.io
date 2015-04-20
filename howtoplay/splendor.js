@@ -1,4 +1,4 @@
-angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFactory', 'PlayerFactory', function($scope, CardFactory, PlayerFactory) {
+angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFactory', 'PlayerFactory', 'NobleFactory', function($scope, CardFactory, PlayerFactory, NobleFactory) {
     function shuffle(array) {
         var currentIndex = array.length, temporaryValue, randomIndex ;
 
@@ -150,14 +150,32 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
             CardFactory.newCard("black", 3, {"black": 0, "white": 3, "red"  : 3, "blue" : 3, "green": 5})
         ]
     };
+
+    $scope.nobles = [
+        NobleFactory.newNoble(3, {"black": 3, "white": 3, "red"  : 0, "blue" : 3, "green": 0}),
+        NobleFactory.newNoble(3, {"black": 0, "white": 0, "red"  : 3, "blue" : 3, "green": 3}),
+        NobleFactory.newNoble(3, {"black": 3, "white": 3, "red"  : 3, "blue" : 0, "green": 0}),
+        NobleFactory.newNoble(3, {"black": 0, "white": 0, "red"  : 4, "blue" : 0, "green": 4}),
+        NobleFactory.newNoble(3, {"black": 0, "white": 0, "red"  : 0, "blue" : 4, "green": 4}),
+        NobleFactory.newNoble(3, {"black": 4, "white": 0, "red"  : 4, "blue" : 0, "green": 0}),
+        NobleFactory.newNoble(3, {"black": 4, "white": 4, "red"  : 0, "blue" : 0, "green": 0}),
+        NobleFactory.newNoble(3, {"black": 0, "white": 3, "red"  : 0, "blue" : 3, "green": 3}),
+        NobleFactory.newNoble(3, {"black": 3, "white": 0, "red"  : 3, "blue" : 0, "green": 3}),
+        NobleFactory.newNoble(3, {"black": 0, "white": 4, "red"  : 0, "blue" : 4, "green": 0})
+    ];
     for(var deck in $scope.decks){
         shuffle($scope.decks[deck]);
     }
+    shuffle($scope.nobles);
     $scope.board = {
         'deck 1': [$scope.decks['deck 1'].pop(), $scope.decks['deck 1'].pop(), $scope.decks['deck 1'].pop()],
         'deck 2': [$scope.decks['deck 2'].pop(), $scope.decks['deck 2'].pop(), $scope.decks['deck 2'].pop()],
         'deck 3': [$scope.decks['deck 3'].pop(), $scope.decks['deck 3'].pop(), $scope.decks['deck 3'].pop()]
     };
+    $scope.board_nobles = [$scope.nobles.pop()];
+    for(var i = 0; i < Object.keys($scope.players).length; i++){
+        $scope.board_nobles.push($scope.nobles.pop());
+    }
     $scope.selected_card_to_reserve = false;
     $scope.selected_card = false;
     $scope.selected_card_index = -1;
@@ -187,6 +205,23 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
                 
                 if(deck != 'reserved' && gameDeck.length > 0 ){
                     boardDeck.splice(number, 0, gameDeck.pop());
+                }
+                for(var i = 0; i < $scope.board_nobles.length; i++){
+                    var getNoble = true;
+                    var noble = $scope.board_nobles[i];
+                    for(var color in noble['requirements']){
+                        getNoble = getNoble && player.getBuildingCount(color) >= noble['requirements'][color];
+                        if(!getNoble){
+                            break;
+                        }
+                    }
+                    if(getNoble){
+                        player.addNoble($scope.board_nobles.splice(i, 1)[0]);
+                        console.log("YEAH GOT NOBLE")
+                        console.log(noble)
+                        console.log(player);
+                    }
+
                 }
             }else{
                 //someone you could buy it before but not now.
@@ -248,7 +283,7 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
         $scope.selected_card_index = -1;
         $scope.selected_deck = null;
     };
-    
+
     
     $scope.showBuyButton = function(deck, index){
         $scope.show_alert = false;
@@ -360,6 +395,14 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
         }
 
     };
+
+        for(var i = 0; i < 6; i++){
+            $scope.buyCard('you', 'deck 1', 0)
+            $scope.buyCard('you', 'deck 2', 0)
+            $scope.buyCard('you', 'deck 3', 0)
+        }
+
+
     
     //welcome to splendor: this is a game about building the greatest gem factory where the winner will be the person with the most number of points.
     //this is the game layout -  as you can see, there are three levels of possible gem buildings to build, each with differing costs
@@ -399,7 +442,7 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
     //bob builds this building. he gets these two nobles, and therefore has 18 points and wins! the end. replay?
     
     
-}]).directive('card', function($timeout, $window) {
+}]).directive('card', function() {
     var costArr = function(cost){
         var colors = ["black","white","red","blue","green"]; //TODO: refer to factory colors instead of manually
         var result = [];
@@ -432,6 +475,38 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
 
     };
 
+}).directive('noble', function() {
+    var costArr = function(cost){
+        var colors = ["black","white","red","blue","green"]; //TODO: refer to factory colors instead of manually
+        var result = [];
+        for(var i = 0; i < colors.length; i++){
+            var c = colors[i];
+            if(c in cost){
+                result.push(cost[c])
+            }else{
+                result.push(0)
+            }
+        }
+        return result.join('-');
+
+    };
+    var generateID = function(points, requirements){
+        return 'noble-' + points  + '-' + costArr(requirements);
+    };
+    return {
+        restrict: 'E',
+        replace:true,
+        scope:{
+            points: '=',
+            requirements: '='
+        },
+        link: function(scope,element,attrs){
+            scope.id = generateID(scope.points, scope.requirements);
+        },
+        templateUrl: '/howtoplay/noble.html'
+
+    };
+
 }).factory('CardFactory', function() {
     function Card(color, points, cost) {
         this.color = color;
@@ -443,6 +518,17 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
     return {
         newCard: function(color, points, cost) {
             return new Card(color, points, cost);
+        }
+    };
+}).factory('NobleFactory', function() {
+    function Noble(points, requirements) {
+        this.points = points;
+        this.requirements = requirements;
+    }
+
+    return {
+        newNoble: function(points, requirements) {
+            return new Noble(points, requirements);
         }
     };
 }).factory('PlayerFactory', function() {
@@ -467,6 +553,7 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
         
         this.reservedCards = [];
 
+        this.nobles = [];
         this.buyCard = function(card){
             var card_costs = card.cost;
             var gold_needed = 0;
@@ -498,7 +585,10 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
             }
             return gold_needed <= this.gems['gold'];
         };
-        
+        this.addNoble = function(noble){
+            this.nobles.push(noble);
+            this.points += noble.points;
+        };
         this.addGem = function(color){
             this.gems[color] += 1;
         };

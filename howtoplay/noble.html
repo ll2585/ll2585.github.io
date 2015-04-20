@@ -1,0 +1,16 @@
+<div class="noble" id = "{{id}}">
+    <div class="top">
+        <span class="noble-label">N</span>
+        <span class="points" ng-if="points > 0">{{points}}</span>
+    </div>
+    <div class="bottom">
+        <div class="requirements">
+            <div ng-repeat = "(color, amt) in requirements" class="requirement" ng-if="amt > 0">
+                <div class="requirement-amt">{{amt}}</div>
+                <div class="color {{color}}">
+                    &nbsp &nbsp
+                    </div>
+            </div>
+        </div>
+    </div>
+</div>
