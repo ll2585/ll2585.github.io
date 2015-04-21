@@ -33,8 +33,8 @@
                                     <div class="gem">
                                         <span class = "color ~~color%$" >&nbsp</span>
                                         <div class="gem-count">
-                                            <div class="~~p.name%$-~~color%$-gem-count">Gems: ~~getPlayerGemCount(p.name, color)%$</div>
-                                            <div class="~~p.name%$-~~color%$-building-count">Buildings: ~~getPlayerBuildingCount(p.name, color)%$</div>
+                                            <div class="~~p.name%$-~~color%$-gem-count">Gems: ~~getPlayerGemCount(p.name, color)%$</div> <span class="gem-change" ng-if="getPlayerGemChange(p.name, color) != 0">~~getPlayerGemChange(p.name, color)%$</span>
+                                            <div class="~~p.name%$-~~color%$-building-count">Cards: ~~getPlayerBuildingCount(p.name, color)%$</div>
                                             <div>Total: ~~getPlayerGemCount(p.name, color)+getPlayerBuildingCount(p.name, color)%$</div>
                                         </div>
                                     </div>

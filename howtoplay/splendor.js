@@ -41,6 +41,10 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
     bob.setNextPlayer('you');
     alice.setNextPlayer('bob');
     you.setNextPlayer('alice');
+
+    bob.setPriorPlayer('alice');
+    alice.setPriorPlayer('you');
+    you.setPriorPlayer('bob');
     
     $scope.startDemo = function(){
         for(var p in $scope.players){
@@ -154,6 +158,7 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
             }
             
             $scope.checkForEndDemo();
+            $scope.players[$scope.curPlayer.priorPlayer].resetGemChanges();
             $scope.curPlayer = $scope.players[$scope.curPlayer.nextPlayer];
         }
         $scope.addMessage("it is your turn.");
@@ -212,7 +217,9 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
                 }
                 if(!$scope.gemsReturned){
                     $scope.checkForEndDemo();
+                    $scope.players[$scope.curPlayer.priorPlayer].resetGemChanges();
                     $scope.curPlayer = $scope.players[$scope.curPlayer.nextPlayer];
+                    
                     $scope.playBots();
                 }
                 
@@ -440,6 +447,10 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
     
     $scope.getPlayer = function(playername){
         return $scope.players[playername]
+    };
+
+    $scope.getPlayerGemChange = function(playername, color){
+        return $scope.players[playername].getChange(color)
     };
 
     $scope.showSelectGem = function(color){
@@ -1069,7 +1080,8 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
             selector: ".alice-scoreboard",
             heading: "The Board",
             text: "On Alice's turn, she took 3 gems of different colors. This is another action you can do, but you can only have 10 gems max at the end of your turn. It is now Bob's turn.",
-            placement: "left",
+            placement: "bottom",
+            scrollPadding: 250,
             scroll: true
         },
         {
@@ -1088,7 +1100,7 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
             type: "element",
             selector: ".bob-scoreboard",
             heading: "The Board",
-            text: "On Bob's turn, he took 2 gems of different colors. This is another action you can do, but only if there are at least 4 gems of that color available",
+            text: "On Bob's turn, he took 2 blue gems. This is another action you can do, but only if there are at least 4 gems of that color available",
             placement: "left",
             scroll: true
         },
@@ -1097,6 +1109,7 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
             selector: ".deck-3-2",
             heading: "The Board",
             text: "This building provides a good number of points, but you cannot afford it yet. Instead you will reserve it. This is the final action that you can do on your turn.",
+            scrollPadding: 250,
             placement: "left",
             scroll: true
         },
@@ -1123,6 +1136,10 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
         {
             type: "function",
             fn: aliceTurn2 //(can also be a string, which will be evaluated on the scope)
+        },
+        {
+            type: "function",
+            fn: dummyFunctionBecauseJoyRideCantSelectElementsCreatedByPriorStep //(can also be a string, which will be evaluated on the scope)
         },
         {
             type: "element",
@@ -1526,10 +1543,12 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
                 }
                 amt_repaid[c] = Math.min(this.gems[c],  gem_cost);
                 this.gems[c] -= amt_repaid[c];
+                this.gemChange[c] -= amt_repaid[c];
 
             }
             this.points += card.points;
             this.gems["gold"] -= gold_needed;
+            this.gemChange["gold"] =- gold_needed;
             this.deck[card.color].push(card);
             amt_repaid["gold"] = gold_needed;
             return amt_repaid;
@@ -1562,6 +1581,7 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
         };
         this.addGem = function(color){
             this.gems[color] += 1;
+            this.gemChange[color] += 1;
         };
         
         
@@ -1574,6 +1594,10 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
         
         this.setStartingPlayer = function(){
             this.firstPlayer = true;
+        };
+
+        this.setPriorPlayer = function(player){
+            this.priorPlayer = player;
         };
         
         this.getGemCount = function(color){
@@ -1606,6 +1630,21 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
             return total;
         };
         
+        this.getChange = function(color){
+            return this.gemChange[color];
+        };
+
+        this.resetGemChanges = function(){
+            this.gemChange = { //TODO: refer to factory colors instead of manually
+                "black": 0,
+                "white": 0,
+                "red": 0,
+                "blue": 0,
+                "green": 0,
+                "gold": 0
+            };
+        };
+        
         this.reset = function(){
             
             this.deck = {//TODO: refer to factory colors instead of manually
@@ -1616,6 +1655,14 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
                 "green": []
             };
             this.gems = { //TODO: refer to factory colors instead of manually
+                "black": 0,
+                "white": 0,
+                "red": 0,
+                "blue": 0,
+                "green": 0,
+                "gold": 0
+            };
+            this.gemChange = { //TODO: refer to factory colors instead of manually
                 "black": 0,
                 "white": 0,
                 "red": 0,
