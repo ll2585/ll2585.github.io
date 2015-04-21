@@ -273,6 +273,7 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
         }
         if(number < boardDeck.length){ //TODO: alert if its not. actually it doesn't matter since this is just a tutorial, but for a full game implementation...
             var card = boardDeck[number];
+            console.log(card);
             if(player.canBuy(card)){
                 console.log("BUY")
                 boardDeck.splice(number, 1)[0];
@@ -296,6 +297,7 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
                     }
                     if(getNoble){
                         player.addNoble($scope.board_nobles.splice(i, 1)[0]);
+                        i -= 1;
                         console.log("YEAH GOT NOBLE")
                         console.log(noble)
                         console.log(player);
@@ -368,20 +370,15 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
     
     
     $scope.showBuyButton = function(deck, index){
-        console.log("step: " + $scope.joyRideStep);
-        console.log("demo start: " + $scope.demoStarted);
-        console.log("learning: " + $scope.learningGame);
-        console.log("deck: " + deck);
-        console.log("index: " + index);
-        
-        if(
-            !$scope.demoStarted &&
-            !($scope.joyRideStep == $scope.demoPauseSteps[0] && $scope.learningGame && deck == 'deck 1' && index == 0)
-        ) {
+        if($scope.joyRideStep == $scope.demoPauseSteps[0] && $scope.learningGame && deck == 'deck 1' && index == 0){
+            $scope.selected_card_index = index;
+            $scope.selected_deck = deck;
+            $scope.selected_card = true;
+            $scope.startJoyRide = true;
             return;
         }
         $scope.show_alert = false;
-        $scope.selected_card_to_reserve = false //enable it later
+        $scope.selected_card_to_reserve = false; //enable it later
         //TODO: check for if you can afford it
         $scope.resetSelectGems();
         if (index == $scope.selected_card_index && deck == $scope.selected_deck) {
@@ -411,7 +408,6 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
     };
 
     $scope.showReserveButton = function(deck, index){
-
         //TODO: check for if you can afford it
         if(index == $scope.selected_card_index && deck == $scope.selected_deck){
             var player = $scope.getPlayer('you');
@@ -565,12 +561,12 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
                 CardFactory.newCard("green", 1, {"black": 1, "white": 4, "red"  : 0, "blue" : 2, "green": 0}),
                 CardFactory.newCard("green", 2, {"black": 0, "white": 0, "red"  : 0, "blue" : 5, "green": 3}),
 
-                CardFactory.newCard("red"  , 2, {"black": 5, "white": 0, "red"  : 0, "blue" : 0, "green": 7}),
-                CardFactory.newCard("red"  , 3, {"black": 0, "white": 0, "red"  : 6, "blue" : 0, "green": 7}),
-                CardFactory.newCard("red"  , 1, {"black": 3, "white": 2, "red"  : 2, "blue" : 0, "green": 7}),
-                CardFactory.newCard("red"  , 2, {"black": 0, "white": 1, "red"  : 0, "blue" : 4, "green": 7}),
-                CardFactory.newCard("red"  , 1, {"black": 3, "white": 0, "red"  : 2, "blue" : 3, "green": 6}),
-                CardFactory.newCard("red"  , 2, {"black": 5, "white": 3, "red"  : 0, "blue" : 0, "green": 3}),
+                CardFactory.newCard("red"  , 2, {"black": 5, "white": 0, "red"  : 0, "blue" : 0, "green": 0}),
+                CardFactory.newCard("red"  , 3, {"black": 0, "white": 0, "red"  : 6, "blue" : 0, "green": 0}),
+                CardFactory.newCard("red"  , 1, {"black": 3, "white": 2, "red"  : 2, "blue" : 0, "green": 0}),
+                CardFactory.newCard("red"  , 2, {"black": 0, "white": 1, "red"  : 0, "blue" : 4, "green": 2}),
+                CardFactory.newCard("red"  , 1, {"black": 3, "white": 0, "red"  : 2, "blue" : 3, "green": 0}),
+                CardFactory.newCard("red"  , 2, {"black": 5, "white": 3, "red"  : 0, "blue" : 0, "green": 0}),
 
                 CardFactory.newCard("black", 2, {"black": 0, "white": 5, "red"  : 0, "blue" : 0, "green": 0}),
                 CardFactory.newCard("black", 3, {"black": 6, "white": 0, "red"  : 0, "blue" : 0, "green": 0}),
@@ -630,7 +626,7 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
     };
     $scope.shuffleNobles = function(){
         shuffle($scope.nobles);
-    }
+    };
     $scope.drawDeck = function(){
         $scope.board = {
             'deck 1': [$scope.decks['deck 1'].pop(), $scope.decks['deck 1'].pop(), $scope.decks['deck 1'].pop()],
@@ -676,6 +672,7 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
     $scope.playDemo = function(){
         $scope.resetGame();
         $scope.demoStarted = true;
+        $scope.learningGame = false;
         var players = ["you", "alice", "bob"];
         var randomIndex = Math.floor((Math.random() * players.length));
         
@@ -690,21 +687,28 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
     $scope.learningGame = false;
     $scope.waiting = false;
     $scope.showTutorial = function(){
+        $scope.resetMessages();
+        $scope.resetPlayers();
+        $scope.resetCards();
+        $scope.resetGems();
+        $scope.demoLastRound = false;
         $scope.startJoyRide = true;
         $scope.learningGame = true;
         $scope.waiting = false;
         $scope.curPlayer = $scope.players['you'];
         $scope.players['you'].setStartingPlayer();
+        console.log("STEP " + $scope.joyRideStep);
     };
     
     $scope.onFinish = function(){
+        console.log("WATS")
         if(!$scope.waiting){
             $scope.joyRideStep = 0;
         }
         
     };
     
-    $scope.demoPauseSteps = [11];
+    $scope.demoPauseSteps = [5,7,17];
     function buildJoyrideBoard(createdNodes){
         $scope.nobles = [
             NobleFactory.newNoble(3, {"black": 3, "white": 3, "red"  : 0, "blue" : 3, "green": 0}),
@@ -714,46 +718,44 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
         ];
         $scope.decks = {
             'deck 1': [
-                
+                CardFactory.newCard("green", 0, {"black": 0, "white": 2, "red"  : 0, "blue" : 1, "green": 0}),
                 CardFactory.newCard("white", 0, {"black": 0, "white": 0, "red"  : 0, "blue" : 3, "green": 0}),
                 CardFactory.newCard("white", 0, {"black": 1, "white": 0, "red"  : 2, "blue" : 0, "green": 0}),
-                CardFactory.newCard("white", 0, {"black": 1, "white": 0, "red"  : 1, "blue" : 1, "green": 1}),
+
                 CardFactory.newCard("white", 0, {"black": 2, "white": 0, "red"  : 0, "blue" : 2, "green": 0}),
                 CardFactory.newCard("white", 1, {"black": 0, "white": 0, "red"  : 0, "blue" : 0, "green": 4}),
                 CardFactory.newCard("white", 0, {"black": 1, "white": 0, "red"  : 1, "blue" : 1, "green": 2}),
-                CardFactory.newCard("white", 0, {"black": 1, "white": 0, "red"  : 0, "blue" : 2, "green": 2}),
+
                 CardFactory.newCard("white", 0, {"black": 1, "white": 3, "red"  : 0, "blue" : 1, "green": 0}),
-                CardFactory.newCard("blue" , 0, {"black": 3, "white": 0, "red"  : 0, "blue" : 0, "green": 0}),
-                CardFactory.newCard("blue" , 0, {"black": 1, "white": 1, "red"  : 1, "blue" : 0, "green": 1}),
-                CardFactory.newCard("blue" , 0, {"black": 2, "white": 0, "red"  : 0, "blue" : 0, "green": 2}),
+
+
+
+
                 CardFactory.newCard("blue" , 1, {"black": 0, "white": 0, "red"  : 4, "blue" : 0, "green": 0}),
-                CardFactory.newCard("blue" , 0, {"black": 1, "white": 1, "red"  : 2, "blue" : 0, "green": 1}),
-                CardFactory.newCard("blue" , 0, {"black": 0, "white": 1, "red"  : 2, "blue" : 0, "green": 2}),
-                CardFactory.newCard("blue" , 0, {"black": 0, "white": 0, "red"  : 1, "blue" : 1, "green": 3}),
-                CardFactory.newCard("green", 0, {"black": 0, "white": 2, "red"  : 0, "blue" : 1, "green": 0}),
-                CardFactory.newCard("green", 0, {"black": 0, "white": 0, "red"  : 3, "blue" : 0, "green": 0}),
                 CardFactory.newCard("green", 0, {"black": 1, "white": 1, "red"  : 1, "blue" : 1, "green": 0}),
-                CardFactory.newCard("green", 0, {"black": 0, "white": 0, "red"  : 2, "blue" : 2, "green": 0}),
+                CardFactory.newCard("black", 0, {"black": 1, "white": 0, "red"  : 3, "blue" : 0, "green": 1}),
                 CardFactory.newCard("green", 1, {"black": 4, "white": 0, "red"  : 0, "blue" : 0, "green": 0}),
                 CardFactory.newCard("green", 0, {"black": 2, "white": 1, "red"  : 1, "blue" : 1, "green": 0}),
                 CardFactory.newCard("green", 0, {"black": 2, "white": 0, "red"  : 2, "blue" : 1, "green": 0}),
-                CardFactory.newCard("green", 0, {"black": 0, "white": 1, "red"  : 0, "blue" : 3, "green": 1}),
-                
-                CardFactory.newCard("red"  , 0, {"black": 0, "white": 3, "red"  : 0, "blue" : 0, "green": 0}),
+
+
                 CardFactory.newCard("red"  , 0, {"black": 1, "white": 1, "red"  : 0, "blue" : 1, "green": 1}),
-                CardFactory.newCard("red"  , 0, {"black": 0, "white": 2, "red"  : 2, "blue" : 0, "green": 0}),
-                CardFactory.newCard("red"  , 1, {"black": 0, "white": 4, "red"  : 0, "blue" : 0, "green": 0}),
+
+
                 CardFactory.newCard("red"  , 0, {"black": 1, "white": 2, "red"  : 0, "blue" : 1, "green": 1}),
                 CardFactory.newCard("red"  , 0, {"black": 2, "white": 2, "red"  : 0, "blue" : 0, "green": 1}),
-                CardFactory.newCard("red"  , 0, {"black": 3, "white": 1, "red"  : 1, "blue" : 0, "green": 0}),
+
                 CardFactory.newCard("black", 0, {"black": 0, "white": 0, "red"  : 1, "blue" : 0, "green": 2}),
                 CardFactory.newCard("black", 0, {"black": 0, "white": 0, "red"  : 0, "blue" : 0, "green": 3}),
                 CardFactory.newCard("black", 0, {"black": 0, "white": 1, "red"  : 1, "blue" : 1, "green": 1}),
                 CardFactory.newCard("black", 0, {"black": 0, "white": 2, "red"  : 0, "blue" : 0, "green": 2}),
-                CardFactory.newCard("black", 1, {"black": 0, "white": 0, "red"  : 0, "blue" : 4, "green": 0}),
+
                 CardFactory.newCard("black", 0, {"black": 0, "white": 1, "red"  : 1, "blue" : 2, "green": 1}),
                 CardFactory.newCard("black", 0, {"black": 0, "white": 2, "red"  : 1, "blue" : 2, "green": 0}),
-                CardFactory.newCard("black", 0, {"black": 1, "white": 0, "red"  : 3, "blue" : 0, "green": 1}),
+
+                CardFactory.newCard("green", 0, {"black": 0, "white": 0, "red"  : 3, "blue" : 0, "green": 0}),
+                CardFactory.newCard("green", 0, {"black": 0, "white": 0, "red"  : 2, "blue" : 2, "green": 0}),
+                CardFactory.newCard("white", 0, {"black": 1, "white": 0, "red"  : 1, "blue" : 1, "green": 1}),
                 CardFactory.newCard("red"  , 0, {"black": 0, "white": 0, "red"  : 0, "blue" : 2, "green": 1})
             ],
             'deck 2': [
@@ -762,11 +764,11 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
                 CardFactory.newCard("white", 1, {"black": 2, "white": 0, "red"  : 2, "blue" : 0, "green": 3}),
                 CardFactory.newCard("white", 2, {"black": 2, "white": 0, "red"  : 4, "blue" : 0, "green": 1}),
                 CardFactory.newCard("white", 1, {"black": 0, "white": 2, "red"  : 3, "blue" : 3, "green": 0}),
-                CardFactory.newCard("white", 2, {"black": 3, "white": 0, "red"  : 5, "blue" : 0, "green": 0}),
+
 
                 CardFactory.newCard("blue" , 2, {"black": 0, "white": 0, "red"  : 0, "blue" : 5, "green": 0}),
-                CardFactory.newCard("blue" , 3, {"black": 0, "white": 0, "red"  : 0, "blue" : 6, "green": 0}),
-                CardFactory.newCard("blue" , 1, {"black": 0, "white": 0, "red"  : 3, "blue" : 2, "green": 2}),
+
+                CardFactory.newCard("black", 2, {"black": 0, "white": 0, "red"  : 2, "blue" : 1, "green": 4}),
                 CardFactory.newCard("blue" , 2, {"black": 4, "white": 2, "red"  : 1, "blue" : 0, "green": 0}),
                 CardFactory.newCard("blue" , 1, {"black": 3, "white": 0, "red"  : 0, "blue" : 2, "green": 3}),
                 CardFactory.newCard("blue" , 2, {"black": 0, "white": 5, "red"  : 0, "blue" : 3, "green": 0}),
@@ -778,22 +780,23 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
                 CardFactory.newCard("green", 1, {"black": 1, "white": 4, "red"  : 0, "blue" : 2, "green": 0}),
                 CardFactory.newCard("green", 2, {"black": 0, "white": 0, "red"  : 0, "blue" : 5, "green": 3}),
 
-                CardFactory.newCard("red"  , 2, {"black": 5, "white": 0, "red"  : 0, "blue" : 0, "green": 7}),
-                CardFactory.newCard("red"  , 3, {"black": 0, "white": 0, "red"  : 6, "blue" : 0, "green": 7}),
-                CardFactory.newCard("red"  , 1, {"black": 3, "white": 2, "red"  : 2, "blue" : 0, "green": 7}),
-                CardFactory.newCard("red"  , 2, {"black": 0, "white": 1, "red"  : 0, "blue" : 4, "green": 7}),
-                CardFactory.newCard("red"  , 1, {"black": 3, "white": 0, "red"  : 2, "blue" : 3, "green": 6}),
-                CardFactory.newCard("red"  , 2, {"black": 5, "white": 3, "red"  : 0, "blue" : 0, "green": 3}),
+                CardFactory.newCard("red"  , 2, {"black": 5, "white": 0, "red"  : 0, "blue" : 0, "green": 0}),
+
+                CardFactory.newCard("red"  , 1, {"black": 3, "white": 2, "red"  : 2, "blue" : 0, "green": 0}),
+                CardFactory.newCard("red"  , 2, {"black": 0, "white": 1, "red"  : 0, "blue" : 4, "green": 2}),
+                CardFactory.newCard("red"  , 1, {"black": 3, "white": 0, "red"  : 2, "blue" : 3, "green": 0}),
+                CardFactory.newCard("red"  , 2, {"black": 5, "white": 3, "red"  : 0, "blue" : 0, "green": 0}),
 
                 
                 CardFactory.newCard("black", 3, {"black": 6, "white": 0, "red"  : 0, "blue" : 0, "green": 0}),
-                CardFactory.newCard("black", 1, {"black": 0, "white": 3, "red"  : 0, "blue" : 2, "green": 2}),
-                CardFactory.newCard("black", 2, {"black": 0, "white": 0, "red"  : 2, "blue" : 1, "green": 4}),
+
+
+                CardFactory.newCard("blue" , 1, {"black": 0, "white": 0, "red"  : 3, "blue" : 2, "green": 2}),
                 CardFactory.newCard("black", 1, {"black": 2, "white": 3, "red"  : 0, "blue" : 0, "green": 3}),
                 CardFactory.newCard("black", 2, {"black": 0, "white": 0, "red"  : 3, "blue" : 0, "green": 5})
             ],
             'deck 3': [
-                CardFactory.newCard("white", 4, {"black": 7, "white": 0, "red"  : 0, "blue" : 0, "green": 0}),
+
                 CardFactory.newCard("white", 5, {"black": 7, "white": 3, "red"  : 0, "blue" : 0, "green": 0}),
                 CardFactory.newCard("white", 4, {"black": 6, "white": 3, "red"  : 3, "blue" : 0, "green": 0}),
                 CardFactory.newCard("white", 3, {"black": 3, "white": 0, "red"  : 5, "blue" : 3, "green": 3}),
@@ -804,7 +807,7 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
                 CardFactory.newCard("blue" , 3, {"black": 5, "white": 3, "red"  : 3, "blue" : 0, "green": 3}),
 
                 CardFactory.newCard("green", 4, {"black": 0, "white": 0, "red"  : 0, "blue" : 7, "green": 0}),
-                CardFactory.newCard("green", 5, {"black": 0, "white": 0, "red"  : 0, "blue" : 7, "green": 3}),
+                CardFactory.newCard("black", 3, {"black": 0, "white": 3, "red"  : 3, "blue" : 3, "green": 5}),
                 CardFactory.newCard("green", 4, {"black": 0, "white": 3, "red"  : 0, "blue" : 6, "green": 3}),
                 CardFactory.newCard("green", 3, {"black": 3, "white": 5, "red"  : 3, "blue" : 3, "green": 0}),
 
@@ -813,29 +816,119 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
                 CardFactory.newCard("red"  , 4, {"black": 0, "white": 0, "red"  : 3, "blue" : 3, "green": 6}),
                 CardFactory.newCard("red"  , 3, {"black": 3, "white": 3, "red"  : 0, "blue" : 5, "green": 3}),
 
-                CardFactory.newCard("black", 4, {"black": 0, "white": 0, "red"  : 7, "blue" : 0, "green": 0}),
+
                 CardFactory.newCard("black", 4, {"black": 3, "white": 0, "red"  : 6, "blue" : 0, "green": 3}),
-                CardFactory.newCard("black", 3, {"black": 0, "white": 3, "red"  : 3, "blue" : 3, "green": 5}),
+                CardFactory.newCard("black", 4, {"black": 0, "white": 0, "red"  : 7, "blue" : 0, "green": 0}),
+
+                CardFactory.newCard("green", 5, {"black": 0, "white": 0, "red"  : 0, "blue" : 7, "green": 3}),
+                CardFactory.newCard("white", 4, {"black": 7, "white": 0, "red"  : 0, "blue" : 0, "green": 0}),
                 
             ]
         };
         $scope.drawDeck();
         $scope.drawNobles();
     };
+    $scope.wait_count = 0;
     function waitForClick(createdNodes){
-        $scope.joyRideStep = $scope.demoPauseSteps[0];
+        $scope.joyRideStep = $scope.demoPauseSteps[$scope.wait_count];
         console.log("THE STEP SI " + $scope.joyRideStep);
         $scope.waiting = true;
         $scope.startJoyRide = false;
+        $scope.wait_count += 1;
+        console.log("WATS2")
     };
     function giveJoyRideCardsGems(createdNodes){
         var you = $scope.players['you'];
         you.addCard(CardFactory.newCard("black", 5, {"black": 3, "white": 0, "red"  : 7, "blue" : 0, "green": 0}));
         you.addCard(CardFactory.newCard("black", 2, {"black": 0, "white": 5, "red"  : 0, "blue" : 0, "green": 0}));
         you.addCard(CardFactory.newCard("blue" , 0, {"black": 2, "white": 1, "red"  : 0, "blue" : 0, "green": 0}));
-        $scope.selected_gems=['green', 'blue', 'red','red','red','red','black','black','black','black'];
+        you.addCard(CardFactory.newCard("red"  , 0, {"black": 3, "white": 1, "red"  : 1, "blue" : 0, "green": 0}));
+        you.points = 7;
+        $scope.selected_gems=['green', 'blue', 'red','red','red','red','black','black','black'];
         $scope.takeGems('you');
+
+        var alice = $scope.players['alice'];
+        alice.addCard(CardFactory.newCard("white", 0, {"black": 1, "white": 0, "red"  : 0, "blue" : 2, "green": 2}));
+        alice.addCard(CardFactory.newCard("white", 2, {"black": 3, "white": 0, "red"  : 5, "blue" : 0, "green": 0}));
+        alice.addCard(CardFactory.newCard("black", 1, {"black": 0, "white": 0, "red"  : 0, "blue" : 4, "green": 0}));
+        alice.addCard(CardFactory.newCard("black", 1, {"black": 0, "white": 3, "red"  : 0, "blue" : 2, "green": 2}));
+        alice.addCard(CardFactory.newCard("blue" , 0, {"black": 3, "white": 0, "red"  : 0, "blue" : 0, "green": 0}));
+        alice.addCard(CardFactory.newCard("blue" , 0, {"black": 1, "white": 1, "red"  : 1, "blue" : 0, "green": 1}));
+        alice.addCard(CardFactory.newCard("blue" , 3, {"black": 0, "white": 0, "red"  : 0, "blue" : 6, "green": 0}));
+        alice.points = 7;
+
+        var bob = $scope.players['bob'];
+        bob.addCard(CardFactory.newCard("blue" , 0, {"black": 2, "white": 0, "red"  : 0, "blue" : 0, "green": 2}));
+
+        bob.addCard(CardFactory.newCard("blue" , 0, {"black": 1, "white": 1, "red"  : 2, "blue" : 0, "green": 1}));
+        bob.addCard(CardFactory.newCard("blue" , 0, {"black": 0, "white": 1, "red"  : 2, "blue" : 0, "green": 2}));
+        bob.addCard(CardFactory.newCard("blue" , 0, {"black": 0, "white": 0, "red"  : 1, "blue" : 1, "green": 3}));
+        bob.addCard(CardFactory.newCard("green", 0, {"black": 0, "white": 1, "red"  : 0, "blue" : 3, "green": 1}));
+        bob.addCard(CardFactory.newCard("red"  , 3, {"black": 0, "white": 0, "red"  : 6, "blue" : 0, "green": 0}));
+        bob.addCard(CardFactory.newCard("red"  , 0, {"black": 0, "white": 2, "red"  : 2, "blue" : 0, "green": 0}));
+        bob.addCard(CardFactory.newCard("red"  , 0, {"black": 0, "white": 3, "red"  : 0, "blue" : 0, "green": 0}));
+        bob.addCard(CardFactory.newCard("red"  , 1, {"black": 0, "white": 4, "red"  : 0, "blue" : 0, "green": 0}));
+        bob.points = 4;
+
     };
+
+    function aliceTurn1(){
+        $scope.selected_gems=['green', 'red', 'white']; //takes 2 greens
+        $scope.takeGems('alice'); //takes green, red, white
+    };
+    function aliceTurn2(){
+        $scope.buyCard('alice', 'deck 1', 1); //white ->needs black red blue green but she has black and blue
+    };
+    function aliceTurn3(){
+        $scope.selected_gems=['green', 'green']; //takes 2 greens
+        $scope.takeGems('alice');
+    };
+    function aliceTurn4(){
+        $scope.reserveCard('alice', 'deck 2', 1);
+    };
+    function aliceTurn5(){
+        $scope.buyCard('alice', 'reserved', 0) //need 2 black 3 green 3 white -> gets 3 black 3 blue 3 white
+    };
+    function bobTurn1(){
+        $scope.selected_gems=['blue', 'blue']; //takes 2 blues
+        $scope.takeGems('bob');
+    };
+    function bobTurn2(){
+        $scope.buyCard('bob', 'deck 1', 2) //green: needs 2 red 2 blue, he has 4 blue buildings and 1 green buildings already (and 3 red buildings...) so he has 2 blue gems lol.
+    };
+    function bobTurn3(){
+        $scope.buyCard('bob', 'deck 1', 0)//green - should be needing 3 reds but he has it lol. he now has 4 blue 2 green 4 red
+    };
+    function bobTurn4(){
+        $scope.buyCard('bob', 'deck 2', 2) //blue: needs 3 red 2 blue 2 green, he has 4 blue buildings and 3 green buildings already (and 4 red buildings...) so he has 2 blue gems lol.
+    };
+    function bobTurn5(){
+        $scope.buyCard('bob', 'deck 3', 1) //green: needs 7 blue 3 green, he has 5 blue buildings and 3 green buildings already (and 4 red buildings...) so he has 2 blue gems lol.
+    };
+    function yourTurn1(){
+        $scope.buyCard('you', 'deck 1', 0)
+    };
+    function yourTurn2(){
+        $scope.reserveCard('you', 'deck 3', 2);
+    };
+    function yourTurn3(){
+        $scope.buyCard('you', 'reserved', 0)
+    };
+    function yourTurn4(){
+        $scope.reserveCard('you', 'deck 3', 0);
+    };
+    function yourTurn5(){
+        $scope.buyCard('you', 'reserved', 0)
+    };
+
+    function dummyFunctionBecauseJoyRideCantSelectElementsCreatedByPriorStep(){
+
+    };
+
+    function endTutorial(){
+        $scope.learningGame = false;
+        $scope.demoStarted = false;
+    }
     $scope.config = [
 
         {
@@ -846,7 +939,7 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
         },{
             type: "function",
             fn: buildJoyrideBoard //(can also be a string, which will be evaluated on the scope)
-        },/**
+        },
         {
             type: "element",
             selector: ".board-cards",
@@ -863,11 +956,11 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
             placement: "left",
             scrollPadding: 250,
             scroll: true
-        },**/
+        },
         {
             type: "function",
             fn: giveJoyRideCardsGems //(can also be a string, which will be evaluated on the scope)
-        },/**
+        },
         {
             type: "element",
             selector: ".you-scoreboard",
@@ -899,19 +992,399 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
             text: "These two buildings also produces two black gems for you (1 each).",
             placement: "left",
             scroll: true
-        },**/
+        },
         {
             type: "element",
             selector: ".deck-1-0",
             heading: "The Board",
-            text: "On your turn you can buy buildings if you can afford them. click this building to buy it.",
+            text: "On your turn you can buy buildings if you can afford them.",
+            placement: "left",
+            scroll: true
+        },
+        {
+            type: "element",
+            selector: ".deck-1-0 > .bottom > .costs",
+            heading: "The Board",
+            text: "The cost of this building is 2 blue gems and 1 green gem.",
+            placement: "left",
+            scroll: true
+        },
+        {
+            type: "element",
+            selector: ".you-green-deck",
+            heading: "The Board",
+            text: "You have 1 green gem...",
+            placement: "left",
+            scroll: true
+        },
+        {
+            type: "element",
+            selector: ".you-blue-deck",
+            heading: "The Board",
+            text: "and one blue gem...",
+            placement: "left",
+            scroll: true
+        },
+        {
+            type: "element",
+            selector: ".you-blue-building-count",
+            heading: "The Board",
+            text: "but because you have one blue building, the cost is reduced by 1 (the blue building 'generates' a blue gem).",
+            placement: "left",
+            scroll: true
+        },
+        {
+            type: "element",
+            selector: ".deck-1-0",
+            heading: "The Board",
+            text: "Now you will buy this card!",
+            placement: "left"
+        },
+        {
+            type: "function",
+            fn: yourTurn1 //(can also be a string, which will be evaluated on the scope)
+        },
+        {
+            type: "element",
+            selector: "#board > .gems",
+            heading: "The Board",
+            text: "By buying the card, you pay the gems back to the game.",
+            placement: "left",
+            scroll: true
+        },
+        {
+            type: "element",
+            selector: ".deck-1-0",
+            heading: "The Board",
+            text: "Buildings are replaced when bought. Your turn is now over. It is now Alice's turn.",
             placement: "left",
             scroll: true
         },
         {
             type: "function",
-            fn: waitForClick //(can also be a string, which will be evaluated on the scope)
-        }
+            fn: aliceTurn1 //(can also be a string, which will be evaluated on the scope)
+        },
+        {
+            type: "element",
+            selector: ".alice-scoreboard",
+            heading: "The Board",
+            text: "On Alice's turn, she took 3 gems of different colors. This is another action you can do, but you can only have 10 gems max at the end of your turn. It is now Bob's turn.",
+            placement: "left",
+            scroll: true
+        },
+        {
+         type: "element",
+         selector: ".you-total-gem-count",
+         heading: "The Board",
+         text: "Be careful though, you can only have 10 gems max at the end of your turn. It is now Bob's turn.",
+         placement: "left",
+         scroll: true
+         },
+        {
+            type: "function",
+            fn: bobTurn1 //(can also be a string, which will be evaluated on the scope)
+        },
+        {
+            type: "element",
+            selector: ".bob-scoreboard",
+            heading: "The Board",
+            text: "On Bob's turn, he took 2 gems of different colors. This is another action you can do, but only if there are at least 4 gems of that color available",
+            placement: "left",
+            scroll: true
+        },
+        {
+            type: "element",
+            selector: ".deck-3-2",
+            heading: "The Board",
+            text: "This building provides a good number of points, but you cannot afford it yet. Instead you will reserve it. This is the final action that you can do on your turn.",
+            placement: "left",
+            scroll: true
+        },
+        {
+            type: "function",
+            fn: yourTurn2 //(can also be a string, which will be evaluated on the scope)
+        },
+        {
+            type: "element",
+            selector: "#you > .image-and-stats > .reserved-cards",
+            heading: "The Board",
+            text: "When you reserve a card, only you can build it, but only on a future turn. You can only reserve 3 cards max.",
+            placement: "left",
+            scroll: true
+        },
+        {
+            type: "element",
+            selector: ".you-gold-count",
+            heading: "The Board",
+            text: "You also receive a gold gem, which is a wildcard gem color. It is now Alice's turn.",
+            placement: "left",
+            scroll: true
+        },
+        {
+            type: "function",
+            fn: aliceTurn2 //(can also be a string, which will be evaluated on the scope)
+        },
+        {
+            type: "element",
+            selector: ".alice-white-2",
+            heading: "The Board",
+            text: "Alice built this building.",
+            placement: "left",
+            scroll: true
+        },
+        {
+            type: "function",
+            fn: bobTurn2 //(can also be a string, which will be evaluated on the scope)
+        },
+        {
+            type: "function",
+            fn: dummyFunctionBecauseJoyRideCantSelectElementsCreatedByPriorStep //(can also be a string, which will be evaluated on the scope)
+        },
+        {
+            type: "element",
+            selector: ".bob-green-1",
+            heading: "The Board",
+            text: "Bob built this building.",
+            placement: "left",
+            scroll: true
+        },
+        {
+            type: "element",
+            selector: "#you > .image-and-stats > .reserved-cards",
+            heading: "The Board",
+            text: "Now you can build this building!",
+            placement: "left",
+            scroll: true
+        },
+        {
+            type: "function",
+            fn: yourTurn3 //(can also be a string, which will be evaluated on the scope)
+        },
+        {
+            type: "element",
+            selector: ".you-red-building-count",
+            heading: "The Board",
+            text: "Notice how, because you have one red building, the red gem cost is reduced by 1. ",
+            placement: "left",
+            scroll: true
+        },
+        {
+            type: "element",
+            selector: ".you-gold-count",
+            heading: "The Board",
+            text: "Also you used your gold gem because you do not have a black gem.",
+            placement: "left",
+            scroll: true
+        },
+        {
+            type: "element",
+            selector: ".you-point-count",
+            heading: "The Board",
+            text: "Now you have 11 points! When someone gets 15 points, that round is the last round. The order continues, but ends when it comes back to the starting player. So be careful!",
+            placement: "left",
+            scroll: true
+        },
+        {
+            type: "function",
+            fn: aliceTurn3 //(can also be a string, which will be evaluated on the scope)
+        },
+        {
+            type: "element",
+            selector: ".alice-green-deck",
+            heading: "The Board",
+            text: "Alice took 2 green gems (there were 5 green gems available before she took them).",
+            placement: "left",
+            scroll: true
+        },
+        {
+            type: "function",
+            fn: bobTurn3 //(can also be a string, which will be evaluated on the scope)
+        },
+        {
+            type: "function",
+            fn: dummyFunctionBecauseJoyRideCantSelectElementsCreatedByPriorStep //(can also be a string, which will be evaluated on the scope)
+        },
+        {
+            type: "element",
+            selector: ".bob-green-2",
+            heading: "The Board",
+            text: "Bob built this green building.",
+            placement: "left",
+            scroll: true
+        },
+        {
+            type: "element",
+            selector: ".deck-3-0",
+            heading: "The Board",
+            text: "You will reserve this card.",
+            placement: "left",
+            scroll: true
+        },
+        {
+            type: "function",
+            fn: yourTurn4 //(can also be a string, which will be evaluated on the scope)
+        },
+        {
+            type: "function",
+            fn: aliceTurn4 //(can also be a string, which will be evaluated on the scope)
+        },
+        {
+            type: "element",
+            selector: ".alice-gold-count",
+            heading: "The Board",
+            text: "Alice reserved a card.",
+            placement: "left",
+            scroll: true
+        },
+        {
+            type: "function",
+            fn: bobTurn4 //(can also be a string, which will be evaluated on the scope)
+        },
+        {
+            type: "function",
+            fn: dummyFunctionBecauseJoyRideCantSelectElementsCreatedByPriorStep //(can also be a string, which will be evaluated on the scope)
+        },
+        {
+            type: "element",
+            selector: ".bob-blue-4",
+            heading: "The Board",
+            text: "Bob built ANOTHER blue building (what is he doing??).",
+            placement: "left",
+            scroll: true
+        },
+        {
+            type: "element",
+            selector: "#you > .image-and-stats > .reserved-cards",
+            heading: "The Board",
+            text: "Now you will build this card! It will get you to 15 points.",
+            placement: "left",
+            scroll: true
+        },
+        {
+            type: "function",
+            fn: yourTurn5 //(can also be a string, which will be evaluated on the scope)
+        },
+        {
+            type: "element",
+            selector: ".you-point-count",
+            heading: "The Board",
+            text: "Because you have 15 points, this is the last round. Because you are the starting player, Alice and Bob get to have one last turn.",
+            placement: "left",
+            scroll: true
+        },
+        {
+            type: "function",
+            fn: aliceTurn5 //(can also be a string, which will be evaluated on the scope)
+        },
+        {
+            type: "function",
+            fn: dummyFunctionBecauseJoyRideCantSelectElementsCreatedByPriorStep //(can also be a string, which will be evaluated on the scope)
+        },
+        {
+            type: "element",
+            selector: ".alice-black-2",
+            heading: "The Board",
+            text: "Alice builds this building.",
+            placement: "left",
+            scroll: true
+        },
+        {
+            type: "element",
+            selector: ".alice-scoreboard",
+            heading: "The Board",
+            text: "Because she has 3 black and 3 blue and 3 white buildings...",
+            placement: "left",
+            scroll: true
+        },
+        {
+            type: "function",
+            fn: dummyFunctionBecauseJoyRideCantSelectElementsCreatedByPriorStep //(can also be a string, which will be evaluated on the scope)
+        },
+        {
+            type: "element",
+            selector: "#noble-3-3-3-0-3-0",
+            heading: "The Board",
+            text: "...she gets this noble card!",
+            placement: "left",
+            scroll: true
+        },
+        {
+            type: "element",
+            selector: ".alice-point-count",
+            heading: "The Board",
+            text: "This gives her more points! Unfortunately, she did not beat you.",
+            placement: "left",
+            scroll: true
+        },
+        {
+            type: "element",
+            selector: "#nobles",
+            heading: "The Board",
+            text: "Noble cards are not replaced when taken. There are now only 3 cards left.",
+            placement: "left",
+            scroll: true
+        },
+        {
+            type: "function",
+            fn: bobTurn5 //(can also be a string, which will be evaluated on the scope)
+        },
+        {
+            type: "function",
+            fn: dummyFunctionBecauseJoyRideCantSelectElementsCreatedByPriorStep //(can also be a string, which will be evaluated on the scope)
+        },
+        {
+            type: "element",
+            selector: ".bob-green-3",
+            heading: "The Board",
+            text: "Bob builds this building...",
+            placement: "left",
+            scroll: true
+        },
+        {
+            type: "element",
+            selector: "#noble-3-0-0-0-4-4",
+            heading: "The Board",
+            text: "...which gives him this noble...",
+            placement: "left",
+            scroll: true
+        },
+        {
+            type: "element",
+            selector: "#noble-3-0-0-4-0-4",
+            heading: "The Board",
+            text: "...AND this noble!",
+            placement: "left",
+            scroll: true
+        },
+        {
+            type: "element",
+            selector: ".first-player",
+            heading: "The Board",
+            text: "Since you are the next player, and you are the starting player, the game is over.",
+            placement: "left",
+            scroll: true
+        },
+        {
+            type: "element",
+            selector: ".bob-point-count",
+            heading: "The Board",
+            text: "Even though you have 15 points, Bob wins because he has 16 points.",
+            placement: "left",
+            scroll: true
+        },
+        {
+            type: "function",
+            fn: endTutorial //(can also be a string, which will be evaluated on the scope)
+        },
+        {
+            type: "element",
+            selector: ".demo-button",
+            heading: "The Board",
+            text: "That's it! Play a demo if you need practice.",
+            placement: "bottom",
+            scroll: true
+        },
+
     ];
     //welcome to splendor: this is a game about building the greatest gem factory where the winner will be the person with the most number of points.
     //this is the game layout -  as you can see, there are three levels of possible gem buildings to build, each with differing costs
@@ -942,9 +1415,6 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
     //click this card to reserve it -> reserve 7 black: white 3 points (had 4 blacks, 2 black buildings)
     //end your turn
     //alice took 3 gems
-    //bob built a building
-    //take these three gems
-    //alice built a building
     //bob built a building
     //build this building! now you have 15 points. because you started the game, bob and alice have one final turn. -> builds 7 black: white 3 pts (had 4 blacks, 1 gold, 2 black buildings)
     //alice builds this building. because she has 3 black and 3 blue and 3 white buildings, she gets this noble card which gives her more points! noble cards are not replaced when taken.

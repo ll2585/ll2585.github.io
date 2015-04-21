@@ -84,6 +84,7 @@
                 _highlightElement.call(this);
                 handleClicksOnElement();
                 this.addClassToCurtain(this.curtainClass);
+                console.log($fkEl)
                 return _generateHtml.call(this).then(angular.bind(this, _generatePopover)).then(angular.bind(this, _showTooltip));
 
 
@@ -133,6 +134,7 @@
                 if(this.scrollPadding){
                     paddingTop = this.scrollPadding;
                 }
+                console.log($fkEl);
                 $('html, body').animate({
                     scrollTop: $fkEl.offset().top - paddingTop
                 }, 1000);
@@ -425,6 +427,7 @@
                     }
 
                     if (requires_timeout) {
+                        console.log('timeout')
                         $timeout(generateStep, 100);
                     }
                     else {
@@ -493,7 +496,9 @@
                 }
 
                 function generateStep() {
+                    console.log(steps);
                     var currentStep = steps[currentStepCount];
+
                     currentStep.generate();
                     var interval = 500;
                     if (currentStep.type === "location_change") {
