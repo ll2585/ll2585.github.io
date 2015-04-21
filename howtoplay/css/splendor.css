@@ -85,7 +85,19 @@
 .gem-count{
     display: inline-block;
     width: 100%; /*TODO: MAKE THIS DYNAMIC */
-    font-size: small;
+    font-size: smaller;
+}
+.gem-count-label{
+    display: inline;
+}
+.gem-change{
+    display: inline;
+}
+.gem-change-increase{
+    color: green;
+}
+.gem-change-decrease{
+    color: red;
 }
 .card .red, .gem .red, .noble .red, .modal > .row .red  {
     background: url(../img/splendor/red.svg);

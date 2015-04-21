@@ -13,7 +13,7 @@
                             <img src="/howtoplay/img/chars/~~p.name%$.jpg" style="width:95px; height:130px;">
                             <img src="/howtoplay/img/first.png" style="width:50px; height:50px;" ng-if="p.firstPlayer" class="first-player">
                             <div class="~~p.name%$-point-count">Points: ~~getPlayerPoints(p.name)%$</div>
-                            <div class="~~p.name%$-gold-count">Gold: ~~getPlayerGemCount(p.name, 'gold')%$</div>
+                            <div class="~~p.name%$-gold-count">Gold: ~~getPlayerGemCount(p.name, 'gold')%$ <span class="gem-change" ng-if="getPlayerGemChange(p.name, 'gold') != 0" ng-class="{'gem-change-increase':getPlayerGemChange(p.name, 'gold') > 0, 'gem-change-decrease': getPlayerGemChange(p.name, 'gold') <0} "> &nbsp(~~(getPlayerGemChange(p.name, 'gold') > 0 ? '+' : '') + getPlayerGemChange(p.name, 'gold')%$)</span></div>
                             <div class="~~p.name%$-total-gem-count">Total Gems: ~~p.gemCount()%$</div>
                             <div class="reserved-count" ng-if="p.name !='you'">Reserved Cards: ~~p['reservedCards'].length%$</div>
                             <div class="reserved-cards" ng-if="p.name=='you'">
@@ -33,7 +33,7 @@
                                     <div class="gem">
                                         <span class = "color ~~color%$" >&nbsp</span>
                                         <div class="gem-count">
-                                            <div class="~~p.name%$-~~color%$-gem-count">Gems: ~~getPlayerGemCount(p.name, color)%$</div> <span class="gem-change" ng-if="getPlayerGemChange(p.name, color) != 0">~~getPlayerGemChange(p.name, color)%$</span>
+                                            <div class="~~p.name%$-~~color%$-gem-count gem-count-label">Gems: ~~getPlayerGemCount(p.name, color)%$<span class="gem-change" ng-if="getPlayerGemChange(p.name, color) != 0" ng-class="{'gem-change-increase':getPlayerGemChange(p.name, color) > 0, 'gem-change-decrease': getPlayerGemChange(p.name, color) <0} ">(~~(getPlayerGemChange(p.name, color) > 0 ? '+' : '') + getPlayerGemChange(p.name, color)%$)</span></div>
                                             <div class="~~p.name%$-~~color%$-building-count">Cards: ~~getPlayerBuildingCount(p.name, color)%$</div>
                                             <div>Total: ~~getPlayerGemCount(p.name, color)+getPlayerBuildingCount(p.name, color)%$</div>
                                         </div>
