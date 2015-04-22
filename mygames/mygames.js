@@ -14,8 +14,13 @@ myGamesApp.controller('MainCtrl', ['$scope', '$http', function($scope, $http){
     });
     
     games.then(function(data){
-        console.log(data);
         $scope.games = data;
+        $scope.allCosts = 0;
+        for(var g in $scope.games){
+            console.log($scope.games[g])
+            $scope.allCosts += Number($scope.games[g]['price']);
+        }
+        $scope.allCosts = $scope.allCosts.toFixed(2);
     });
     plays.then(function(data){
         $scope.plays = data;
