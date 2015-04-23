@@ -61,7 +61,6 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
         
         while($scope.curPlayer.name != "you"){
             
-            console.log($scope.curPlayer);
             //bot will buy any card they can, and then do a random action if not.
             var reserved_cards = $scope.curPlayer.reservedCards;
             var p = $scope.curPlayer;
@@ -96,7 +95,6 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
             if(!turn_over){
                 var random_actions = ["take 3 gems", "take 2 gems", "reserve card"]; 
                 var random_index = Math.floor((Math.random() * random_actions.length));
-                console.log(random_actions[random_index]);
                 var colors = ["black","white","red","blue","green"];
                 shuffle(colors);
                 if(random_index == 0){
@@ -259,7 +257,7 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
     $scope.selected_deck = null;
     
     $scope.addMessage = function(msg){
-        console.log(msg);
+
         $scope.game_messages.push(msg);
         if($scope.game_messages.length > 5){
             $scope.game_messages.splice(0,1);
@@ -280,10 +278,9 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
         }
         if(number < boardDeck.length){ //TODO: alert if its not. actually it doesn't matter since this is just a tutorial, but for a full game implementation...
             var card = boardDeck[number];
-            console.log(card);
             if(player.canBuy(card)){
-                console.log("BUY")
-                boardDeck.splice(number, 1)[0];
+                boardDeck.splice(number, 1);
+                
                 var amt_repaid = player.buyCard(card); //its really buy and return the amt repaid
                 for(var g in amt_repaid){
                     $scope.gemCount[g] += amt_repaid[g];
@@ -293,6 +290,7 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
                 if(deck != 'reserved' && gameDeck.length > 0 ){
                     boardDeck.splice(number, 0, gameDeck.pop());
                 }
+                var nobles_to_add = [];
                 for(var i = 0; i < $scope.board_nobles.length; i++){
                     var getNoble = true;
                     var noble = $scope.board_nobles[i];
@@ -303,14 +301,13 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
                         }
                     }
                     if(getNoble){
-                        player.addNoble($scope.board_nobles.splice(i, 1)[0]);
+                        var spliced_noble = $scope.board_nobles.splice(i, 1)[0];
+                        spliced_noble.setOldLocation(i);
+                        nobles_to_add.push(spliced_noble)
                         i -= 1;
-                        console.log("YEAH GOT NOBLE")
-                        console.log(noble)
-                        console.log(player);
                     }
-
                 }
+                player.addNobles(nobles_to_add);
             }else{
                 //someone you could buy it before but not now.
             }
@@ -318,6 +315,44 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
         }
         $scope.endYourTurnIfDemo();
         
+    };
+
+    $scope.unBuyLastCard = function(player, deck, number){ //TODO: make this a service i guess... - 0 because its an array 
+        if(!$scope.learningGame){
+            return;
+        }
+        $scope.show_alert = false;//ONLY IF ITS TUTORIAL
+        var fromReserved = false;
+        var player = $scope.getPlayer(player);
+        var boardDeck;
+        var gameDeck;
+        if(deck == 'reserved'){
+            boardDeck = player.getReservedCards();
+        }else{
+            boardDeck = $scope.board[deck];
+            gameDeck = $scope.decks[deck];
+            var newCard = boardDeck.splice(number, 1)[0];//remove the new card
+        };
+        var lastCard = player.getLastBoughtCard();
+        boardDeck.splice(number, 0, lastCard);//put the old card back
+        var player_paid = player.getOldCost(); //its really buy and return the amt repaid
+        player.unBuyLastCard(); //this pops
+        player.resetGemChanges();
+        
+        for(var g in player_paid){
+            $scope.gemCount[g] -= player_paid[g];
+        }
+        $scope.resetSelectCard();
+        if(deck != 'reserved'){
+            gameDeck.push(newCard);//put the new card on top of the game deck
+        }
+        var nobles = player.popLastNobles(); //this pops and removes from the player
+        for(var i = 0; i < nobles.length; i++){
+            var noble = nobles[i];
+            $scope.board_nobles.splice(noble.oldLocation, 0, noble);
+        }
+        
+
     };
 
     $scope.reserveCard = function(player, deck, number){ //TODO: make this a service i guess... - 0 because its an array
@@ -344,6 +379,31 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
 
     };
 
+    $scope.unReserveLastCard = function(player, deck, number){ //TODO: make this a service i guess... - 0 because its an array
+        if(!$scope.learningGame){ return; }
+        $scope.show_alert = false;
+        var boardDeck = $scope.board[deck];
+        if(number < boardDeck.length){ //TODO: alert if its not. actually it doesn't matter since this is just a tutorial, but for a full game implementation...
+            var player = $scope.getPlayer(player);
+            var newCard = boardDeck.splice(number, 1)[0];//remove the new card
+            var lastCard = player.getLastReservedCard();
+            boardDeck.splice(number, 0, lastCard);//put the old card back
+            player.unReserveLastCard(); //this pops
+            
+            if(player.getGemCount("gold")>=1){
+                player.removeGem("gold");
+                $scope.gemCount["gold"] += 1;
+            }
+            player.resetGemChanges();
+            $scope.resetSelectCard();
+            var gameDeck = $scope.decks[deck];
+            gameDeck.push(newCard);//put the new card on top of the game deck
+
+
+        }
+
+    };
+
     $scope.takeGems = function(player){ //TODO: make this a service i guess... - 0 because its an array
         for(var i = 0; i < $scope.selected_gems.length; i++){
             var color = $scope.selected_gems[i];
@@ -363,6 +423,17 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
         $scope.endYourTurnIfDemo();
         
     };
+    
+    $scope.giveBackGems = function(player, gems){
+        if(!$scope.learningGame){
+            return;
+        }
+        for(var i = 0; i < gems.length; i++){
+            var color = gems[i];
+            $scope.getPlayer(player).removeGem(color);
+            $scope.gemCount[color] += 1;
+        }
+    }
     $scope.resetSelectGems = function(){
         $scope.want_two_gems = false;
         $scope.want_three_gems = false;
@@ -646,8 +717,7 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
     };
     $scope.shuffleNobles = function(){
         shuffle($scope.nobles);
-    };
-    $scope.drawDeck = function(){
+    };$scope.drawDeck = function(){
         $scope.board = {
             'deck 1': [$scope.decks['deck 1'].pop(), $scope.decks['deck 1'].pop(), $scope.decks['deck 1'].pop()],
             'deck 2': [$scope.decks['deck 2'].pop(), $scope.decks['deck 2'].pop(), $scope.decks['deck 2'].pop()],
@@ -657,9 +727,12 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
     $scope.drawNobles = function(){
         $scope.board_nobles = [$scope.nobles.pop()];
         for(var i = 0; i < Object.keys($scope.players).length; i++){
-            $scope.board_nobles.push($scope.nobles.pop());
+            var noble = $scope.nobles.pop();
+            noble.setOldLocation($scope.board_nobles.length);
+            $scope.board_nobles.push(noble);
         }
     };
+    
     $scope.resetCards = function(){
         $scope.setUpDeck();
         $scope.setUpNobles();
@@ -717,11 +790,9 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
         $scope.waiting = false;
         $scope.curPlayer = $scope.players['you'];
         $scope.players['you'].setStartingPlayer();
-        console.log("STEP " + $scope.joyRideStep);
     };
     
     $scope.onFinish = function(){
-        console.log("WATS")
         if(!$scope.waiting){
             $scope.joyRideStep = 0;
         }
@@ -730,236 +801,382 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
     
     $scope.demoPauseSteps = [5,7,17];
     function buildJoyrideBoard(createdNodes){
-        $scope.nobles = [
-            NobleFactory.newNoble(3, {"black": 3, "white": 3, "red"  : 0, "blue" : 3, "green": 0}),
-            NobleFactory.newNoble(3, {"black": 0, "white": 0, "red"  : 4, "blue" : 0, "green": 4}),
-            NobleFactory.newNoble(3, {"black": 0, "white": 0, "red"  : 0, "blue" : 4, "green": 4}),
-            NobleFactory.newNoble(3, {"black": 0, "white": 4, "red"  : 0, "blue" : 4, "green": 0})
-        ];
-        $scope.decks = {
-            'deck 1': [
-                CardFactory.newCard("green", 0, {"black": 0, "white": 2, "red"  : 0, "blue" : 1, "green": 0}),
-                CardFactory.newCard("white", 0, {"black": 0, "white": 0, "red"  : 0, "blue" : 3, "green": 0}),
-                CardFactory.newCard("white", 0, {"black": 1, "white": 0, "red"  : 2, "blue" : 0, "green": 0}),
+        if(createdNodes){
+            $scope.nobles = [
+                NobleFactory.newNoble(3, {"black": 3, "white": 3, "red"  : 0, "blue" : 3, "green": 0}),
+                NobleFactory.newNoble(3, {"black": 0, "white": 0, "red"  : 4, "blue" : 0, "green": 4}),
+                NobleFactory.newNoble(3, {"black": 0, "white": 0, "red"  : 0, "blue" : 4, "green": 4}),
+                NobleFactory.newNoble(3, {"black": 0, "white": 4, "red"  : 0, "blue" : 4, "green": 0})
+            ];
+            $scope.decks = {
+                'deck 1': [
+                    CardFactory.newCard("green", 0, {"black": 0, "white": 2, "red"  : 0, "blue" : 1, "green": 0}),
+                    CardFactory.newCard("white", 0, {"black": 0, "white": 0, "red"  : 0, "blue" : 3, "green": 0}),
+                    CardFactory.newCard("white", 0, {"black": 1, "white": 0, "red"  : 2, "blue" : 0, "green": 0}),
 
-                CardFactory.newCard("white", 0, {"black": 2, "white": 0, "red"  : 0, "blue" : 2, "green": 0}),
-                CardFactory.newCard("white", 1, {"black": 0, "white": 0, "red"  : 0, "blue" : 0, "green": 4}),
-                CardFactory.newCard("white", 0, {"black": 1, "white": 0, "red"  : 1, "blue" : 1, "green": 2}),
+                    CardFactory.newCard("white", 0, {"black": 2, "white": 0, "red"  : 0, "blue" : 2, "green": 0}),
+                    CardFactory.newCard("white", 1, {"black": 0, "white": 0, "red"  : 0, "blue" : 0, "green": 4}),
+                    CardFactory.newCard("white", 0, {"black": 1, "white": 0, "red"  : 1, "blue" : 1, "green": 2}),
 
-                CardFactory.newCard("white", 0, {"black": 1, "white": 3, "red"  : 0, "blue" : 1, "green": 0}),
-
-
-
-
-                CardFactory.newCard("blue" , 1, {"black": 0, "white": 0, "red"  : 4, "blue" : 0, "green": 0}),
-                CardFactory.newCard("green", 0, {"black": 1, "white": 1, "red"  : 1, "blue" : 1, "green": 0}),
-                CardFactory.newCard("black", 0, {"black": 1, "white": 0, "red"  : 3, "blue" : 0, "green": 1}),
-                CardFactory.newCard("green", 1, {"black": 4, "white": 0, "red"  : 0, "blue" : 0, "green": 0}),
-                CardFactory.newCard("green", 0, {"black": 2, "white": 1, "red"  : 1, "blue" : 1, "green": 0}),
-                CardFactory.newCard("green", 0, {"black": 2, "white": 0, "red"  : 2, "blue" : 1, "green": 0}),
+                    CardFactory.newCard("white", 0, {"black": 1, "white": 3, "red"  : 0, "blue" : 1, "green": 0}),
 
 
-                CardFactory.newCard("red"  , 0, {"black": 1, "white": 1, "red"  : 0, "blue" : 1, "green": 1}),
 
 
-                CardFactory.newCard("red"  , 0, {"black": 1, "white": 2, "red"  : 0, "blue" : 1, "green": 1}),
-                CardFactory.newCard("red"  , 0, {"black": 2, "white": 2, "red"  : 0, "blue" : 0, "green": 1}),
-
-                CardFactory.newCard("black", 0, {"black": 0, "white": 0, "red"  : 1, "blue" : 0, "green": 2}),
-                CardFactory.newCard("black", 0, {"black": 0, "white": 0, "red"  : 0, "blue" : 0, "green": 3}),
-                CardFactory.newCard("black", 0, {"black": 0, "white": 1, "red"  : 1, "blue" : 1, "green": 1}),
-                CardFactory.newCard("black", 0, {"black": 0, "white": 2, "red"  : 0, "blue" : 0, "green": 2}),
-
-                CardFactory.newCard("black", 0, {"black": 0, "white": 1, "red"  : 1, "blue" : 2, "green": 1}),
-                CardFactory.newCard("black", 0, {"black": 0, "white": 2, "red"  : 1, "blue" : 2, "green": 0}),
-
-                CardFactory.newCard("green", 0, {"black": 0, "white": 0, "red"  : 3, "blue" : 0, "green": 0}),
-                CardFactory.newCard("green", 0, {"black": 0, "white": 0, "red"  : 2, "blue" : 2, "green": 0}),
-                CardFactory.newCard("white", 0, {"black": 1, "white": 0, "red"  : 1, "blue" : 1, "green": 1}),
-                CardFactory.newCard("red"  , 0, {"black": 0, "white": 0, "red"  : 0, "blue" : 2, "green": 1})
-            ],
-            'deck 2': [
-                CardFactory.newCard("white", 2, {"black": 0, "white": 0, "red"  : 5, "blue" : 0, "green": 0}),
-                CardFactory.newCard("white", 3, {"black": 0, "white": 6, "red"  : 0, "blue" : 0, "green": 0}),
-                CardFactory.newCard("white", 1, {"black": 2, "white": 0, "red"  : 2, "blue" : 0, "green": 3}),
-                CardFactory.newCard("white", 2, {"black": 2, "white": 0, "red"  : 4, "blue" : 0, "green": 1}),
-                CardFactory.newCard("white", 1, {"black": 0, "white": 2, "red"  : 3, "blue" : 3, "green": 0}),
+                    CardFactory.newCard("blue" , 1, {"black": 0, "white": 0, "red"  : 4, "blue" : 0, "green": 0}),
+                    CardFactory.newCard("green", 0, {"black": 1, "white": 1, "red"  : 1, "blue" : 1, "green": 0}),
+                    CardFactory.newCard("black", 0, {"black": 1, "white": 0, "red"  : 3, "blue" : 0, "green": 1}),
+                    CardFactory.newCard("green", 1, {"black": 4, "white": 0, "red"  : 0, "blue" : 0, "green": 0}),
+                    CardFactory.newCard("green", 0, {"black": 2, "white": 1, "red"  : 1, "blue" : 1, "green": 0}),
+                    CardFactory.newCard("green", 0, {"black": 2, "white": 0, "red"  : 2, "blue" : 1, "green": 0}),
 
 
-                CardFactory.newCard("blue" , 2, {"black": 0, "white": 0, "red"  : 0, "blue" : 5, "green": 0}),
-
-                CardFactory.newCard("black", 2, {"black": 0, "white": 0, "red"  : 2, "blue" : 1, "green": 4}),
-                CardFactory.newCard("blue" , 2, {"black": 4, "white": 2, "red"  : 1, "blue" : 0, "green": 0}),
-                CardFactory.newCard("blue" , 1, {"black": 3, "white": 0, "red"  : 0, "blue" : 2, "green": 3}),
-                CardFactory.newCard("blue" , 2, {"black": 0, "white": 5, "red"  : 0, "blue" : 3, "green": 0}),
-
-                CardFactory.newCard("green", 2, {"black": 0, "white": 0, "red"  : 0, "blue" : 0, "green": 5}),
-                CardFactory.newCard("green", 3, {"black": 0, "white": 0, "red"  : 0, "blue" : 0, "green": 6}),
-                CardFactory.newCard("green", 1, {"black": 2, "white": 2, "red"  : 0, "blue" : 3, "green": 0}),
-                CardFactory.newCard("green", 2, {"black": 0, "white": 3, "red"  : 3, "blue" : 0, "green": 2}),
-                CardFactory.newCard("green", 1, {"black": 1, "white": 4, "red"  : 0, "blue" : 2, "green": 0}),
-                CardFactory.newCard("green", 2, {"black": 0, "white": 0, "red"  : 0, "blue" : 5, "green": 3}),
-
-                CardFactory.newCard("red"  , 2, {"black": 5, "white": 0, "red"  : 0, "blue" : 0, "green": 0}),
-
-                CardFactory.newCard("red"  , 1, {"black": 3, "white": 2, "red"  : 2, "blue" : 0, "green": 0}),
-                CardFactory.newCard("red"  , 2, {"black": 0, "white": 1, "red"  : 0, "blue" : 4, "green": 2}),
-                CardFactory.newCard("red"  , 1, {"black": 3, "white": 0, "red"  : 2, "blue" : 3, "green": 0}),
-                CardFactory.newCard("red"  , 2, {"black": 5, "white": 3, "red"  : 0, "blue" : 0, "green": 0}),
-
-                
-                CardFactory.newCard("black", 3, {"black": 6, "white": 0, "red"  : 0, "blue" : 0, "green": 0}),
+                    CardFactory.newCard("red"  , 0, {"black": 1, "white": 1, "red"  : 0, "blue" : 1, "green": 1}),
 
 
-                CardFactory.newCard("blue" , 1, {"black": 0, "white": 0, "red"  : 3, "blue" : 2, "green": 2}),
-                CardFactory.newCard("black", 1, {"black": 2, "white": 3, "red"  : 0, "blue" : 0, "green": 3}),
-                CardFactory.newCard("black", 2, {"black": 0, "white": 0, "red"  : 3, "blue" : 0, "green": 5})
-            ],
-            'deck 3': [
+                    CardFactory.newCard("red"  , 0, {"black": 1, "white": 2, "red"  : 0, "blue" : 1, "green": 1}),
+                    CardFactory.newCard("red"  , 0, {"black": 2, "white": 2, "red"  : 0, "blue" : 0, "green": 1}),
 
-                CardFactory.newCard("white", 5, {"black": 7, "white": 3, "red"  : 0, "blue" : 0, "green": 0}),
-                CardFactory.newCard("white", 4, {"black": 6, "white": 3, "red"  : 3, "blue" : 0, "green": 0}),
-                CardFactory.newCard("white", 3, {"black": 3, "white": 0, "red"  : 5, "blue" : 3, "green": 3}),
+                    CardFactory.newCard("black", 0, {"black": 0, "white": 0, "red"  : 1, "blue" : 0, "green": 2}),
+                    CardFactory.newCard("black", 0, {"black": 0, "white": 0, "red"  : 0, "blue" : 0, "green": 3}),
+                    CardFactory.newCard("black", 0, {"black": 0, "white": 1, "red"  : 1, "blue" : 1, "green": 1}),
+                    CardFactory.newCard("black", 0, {"black": 0, "white": 2, "red"  : 0, "blue" : 0, "green": 2}),
 
-                CardFactory.newCard("blue" , 4, {"black": 0, "white": 7, "red"  : 0, "blue" : 0, "green": 0}),
-                CardFactory.newCard("blue" , 5, {"black": 0, "white": 7, "red"  : 0, "blue" : 3, "green": 0}),
-                CardFactory.newCard("blue" , 4, {"black": 3, "white": 6, "red"  : 0, "blue" : 3, "green": 0}),
-                CardFactory.newCard("blue" , 3, {"black": 5, "white": 3, "red"  : 3, "blue" : 0, "green": 3}),
+                    CardFactory.newCard("black", 0, {"black": 0, "white": 1, "red"  : 1, "blue" : 2, "green": 1}),
+                    CardFactory.newCard("black", 0, {"black": 0, "white": 2, "red"  : 1, "blue" : 2, "green": 0}),
 
-                CardFactory.newCard("green", 4, {"black": 0, "white": 0, "red"  : 0, "blue" : 7, "green": 0}),
-                CardFactory.newCard("black", 3, {"black": 0, "white": 3, "red"  : 3, "blue" : 3, "green": 5}),
-                CardFactory.newCard("green", 4, {"black": 0, "white": 3, "red"  : 0, "blue" : 6, "green": 3}),
-                CardFactory.newCard("green", 3, {"black": 3, "white": 5, "red"  : 3, "blue" : 3, "green": 0}),
-
-                CardFactory.newCard("red"  , 4, {"black": 0, "white": 0, "red"  : 0, "blue" : 0, "green": 7}),
-                CardFactory.newCard("red"  , 5, {"black": 0, "white": 0, "red"  : 3, "blue" : 0, "green": 7}),
-                CardFactory.newCard("red"  , 4, {"black": 0, "white": 0, "red"  : 3, "blue" : 3, "green": 6}),
-                CardFactory.newCard("red"  , 3, {"black": 3, "white": 3, "red"  : 0, "blue" : 5, "green": 3}),
+                    CardFactory.newCard("green", 0, {"black": 0, "white": 0, "red"  : 3, "blue" : 0, "green": 0}),
+                    CardFactory.newCard("green", 0, {"black": 0, "white": 0, "red"  : 2, "blue" : 2, "green": 0}),
+                    CardFactory.newCard("white", 0, {"black": 1, "white": 0, "red"  : 1, "blue" : 1, "green": 1}),
+                    CardFactory.newCard("red"  , 0, {"black": 0, "white": 0, "red"  : 0, "blue" : 2, "green": 1})
+                ],
+                'deck 2': [
+                    CardFactory.newCard("white", 2, {"black": 0, "white": 0, "red"  : 5, "blue" : 0, "green": 0}),
+                    CardFactory.newCard("white", 3, {"black": 0, "white": 6, "red"  : 0, "blue" : 0, "green": 0}),
+                    CardFactory.newCard("white", 1, {"black": 2, "white": 0, "red"  : 2, "blue" : 0, "green": 3}),
+                    CardFactory.newCard("white", 2, {"black": 2, "white": 0, "red"  : 4, "blue" : 0, "green": 1}),
+                    CardFactory.newCard("white", 1, {"black": 0, "white": 2, "red"  : 3, "blue" : 3, "green": 0}),
 
 
-                CardFactory.newCard("black", 4, {"black": 3, "white": 0, "red"  : 6, "blue" : 0, "green": 3}),
-                CardFactory.newCard("black", 4, {"black": 0, "white": 0, "red"  : 7, "blue" : 0, "green": 0}),
+                    CardFactory.newCard("blue" , 2, {"black": 0, "white": 0, "red"  : 0, "blue" : 5, "green": 0}),
 
-                CardFactory.newCard("green", 5, {"black": 0, "white": 0, "red"  : 0, "blue" : 7, "green": 3}),
-                CardFactory.newCard("white", 4, {"black": 7, "white": 0, "red"  : 0, "blue" : 0, "green": 0}),
-                
-            ]
-        };
-        $scope.drawDeck();
-        $scope.drawNobles();
+                    CardFactory.newCard("black", 2, {"black": 0, "white": 0, "red"  : 2, "blue" : 1, "green": 4}),
+                    CardFactory.newCard("blue" , 2, {"black": 4, "white": 2, "red"  : 1, "blue" : 0, "green": 0}),
+                    CardFactory.newCard("blue" , 1, {"black": 3, "white": 0, "red"  : 0, "blue" : 2, "green": 3}),
+                    CardFactory.newCard("blue" , 2, {"black": 0, "white": 5, "red"  : 0, "blue" : 3, "green": 0}),
+
+                    CardFactory.newCard("green", 2, {"black": 0, "white": 0, "red"  : 0, "blue" : 0, "green": 5}),
+                    CardFactory.newCard("green", 3, {"black": 0, "white": 0, "red"  : 0, "blue" : 0, "green": 6}),
+                    CardFactory.newCard("green", 1, {"black": 2, "white": 2, "red"  : 0, "blue" : 3, "green": 0}),
+                    CardFactory.newCard("green", 2, {"black": 0, "white": 3, "red"  : 3, "blue" : 0, "green": 2}),
+                    CardFactory.newCard("green", 1, {"black": 1, "white": 4, "red"  : 0, "blue" : 2, "green": 0}),
+                    CardFactory.newCard("green", 2, {"black": 0, "white": 0, "red"  : 0, "blue" : 5, "green": 3}),
+
+                    CardFactory.newCard("red"  , 2, {"black": 5, "white": 0, "red"  : 0, "blue" : 0, "green": 0}),
+
+                    CardFactory.newCard("red"  , 1, {"black": 3, "white": 2, "red"  : 2, "blue" : 0, "green": 0}),
+                    CardFactory.newCard("red"  , 2, {"black": 0, "white": 1, "red"  : 0, "blue" : 4, "green": 2}),
+                    CardFactory.newCard("red"  , 1, {"black": 3, "white": 0, "red"  : 2, "blue" : 3, "green": 0}),
+                    CardFactory.newCard("red"  , 2, {"black": 5, "white": 3, "red"  : 0, "blue" : 0, "green": 0}),
+
+
+                    CardFactory.newCard("black", 3, {"black": 6, "white": 0, "red"  : 0, "blue" : 0, "green": 0}),
+
+
+                    CardFactory.newCard("blue" , 1, {"black": 0, "white": 0, "red"  : 3, "blue" : 2, "green": 2}),
+                    CardFactory.newCard("black", 1, {"black": 2, "white": 3, "red"  : 0, "blue" : 0, "green": 3}),
+                    CardFactory.newCard("black", 2, {"black": 0, "white": 0, "red"  : 3, "blue" : 0, "green": 5})
+                ],
+                'deck 3': [
+
+                    CardFactory.newCard("white", 5, {"black": 7, "white": 3, "red"  : 0, "blue" : 0, "green": 0}),
+                    CardFactory.newCard("white", 4, {"black": 6, "white": 3, "red"  : 3, "blue" : 0, "green": 0}),
+                    CardFactory.newCard("white", 3, {"black": 3, "white": 0, "red"  : 5, "blue" : 3, "green": 3}),
+
+                    CardFactory.newCard("blue" , 4, {"black": 0, "white": 7, "red"  : 0, "blue" : 0, "green": 0}),
+                    CardFactory.newCard("blue" , 5, {"black": 0, "white": 7, "red"  : 0, "blue" : 3, "green": 0}),
+                    CardFactory.newCard("blue" , 4, {"black": 3, "white": 6, "red"  : 0, "blue" : 3, "green": 0}),
+                    CardFactory.newCard("blue" , 3, {"black": 5, "white": 3, "red"  : 3, "blue" : 0, "green": 3}),
+
+                    CardFactory.newCard("green", 4, {"black": 0, "white": 0, "red"  : 0, "blue" : 7, "green": 0}),
+                    CardFactory.newCard("black", 3, {"black": 0, "white": 3, "red"  : 3, "blue" : 3, "green": 5}),
+                    CardFactory.newCard("green", 4, {"black": 0, "white": 3, "red"  : 0, "blue" : 6, "green": 3}),
+                    CardFactory.newCard("green", 3, {"black": 3, "white": 5, "red"  : 3, "blue" : 3, "green": 0}),
+
+                    CardFactory.newCard("red"  , 4, {"black": 0, "white": 0, "red"  : 0, "blue" : 0, "green": 7}),
+                    CardFactory.newCard("red"  , 5, {"black": 0, "white": 0, "red"  : 3, "blue" : 0, "green": 7}),
+                    CardFactory.newCard("red"  , 4, {"black": 0, "white": 0, "red"  : 3, "blue" : 3, "green": 6}),
+                    CardFactory.newCard("red"  , 3, {"black": 3, "white": 3, "red"  : 0, "blue" : 5, "green": 3}),
+
+
+                    CardFactory.newCard("black", 4, {"black": 3, "white": 0, "red"  : 6, "blue" : 0, "green": 3}),
+                    CardFactory.newCard("black", 4, {"black": 0, "white": 0, "red"  : 7, "blue" : 0, "green": 0}),
+
+                    CardFactory.newCard("green", 5, {"black": 0, "white": 0, "red"  : 0, "blue" : 7, "green": 3}),
+                    CardFactory.newCard("white", 4, {"black": 7, "white": 0, "red"  : 0, "blue" : 0, "green": 0}),
+
+                ]
+            };
+            $scope.drawDeck();
+            $scope.drawNobles();
+        }else{
+            $scope.nobles = [
+
+            ];
+            $scope.decks = {
+                'deck 1': [
+                ],
+                'deck 2': [
+                ],
+                'deck 3': [
+                ]
+            };
+                $scope.board = {
+                };
+                $scope.board_nobles = [];
+        }
+        
     };
+
     $scope.wait_count = 0;
     function waitForClick(createdNodes){
         $scope.joyRideStep = $scope.demoPauseSteps[$scope.wait_count];
-        console.log("THE STEP SI " + $scope.joyRideStep);
         $scope.waiting = true;
         $scope.startJoyRide = false;
         $scope.wait_count += 1;
-        console.log("WATS2")
     };
     function giveJoyRideCardsGems(createdNodes){
-        var you = $scope.players['you'];
-        you.addCard(CardFactory.newCard("black", 5, {"black": 3, "white": 0, "red"  : 7, "blue" : 0, "green": 0}));
-        you.addCard(CardFactory.newCard("black", 2, {"black": 0, "white": 5, "red"  : 0, "blue" : 0, "green": 0}));
-        you.addCard(CardFactory.newCard("blue" , 0, {"black": 2, "white": 1, "red"  : 0, "blue" : 0, "green": 0}));
-        you.addCard(CardFactory.newCard("red"  , 0, {"black": 3, "white": 1, "red"  : 1, "blue" : 0, "green": 0}));
-        you.points = 7;
-        $scope.selected_gems=['green', 'blue', 'red','red','red','red','black','black','black'];
-        $scope.takeGems('you');
-        you.resetGemChanges();
+        if(createdNodes) {
+            var you = $scope.players['you'];
+            you.addCard(CardFactory.newCard("black", 5, {"black": 3, "white": 0, "red": 7, "blue": 0, "green": 0}));
+            you.addCard(CardFactory.newCard("black", 2, {"black": 0, "white": 5, "red": 0, "blue": 0, "green": 0}));
+            you.addCard(CardFactory.newCard("blue", 0, {"black": 2, "white": 1, "red": 0, "blue": 0, "green": 0}));
+            you.addCard(CardFactory.newCard("red", 0, {"black": 3, "white": 1, "red": 1, "blue": 0, "green": 0}));
+            you.points = 7;
+            $scope.selected_gems = ['green', 'blue', 'red', 'red', 'red', 'red', 'black', 'black', 'black'];
+            $scope.takeGems('you');
+            you.resetGemChanges();
 
-        var alice = $scope.players['alice'];
-        alice.addCard(CardFactory.newCard("white", 0, {"black": 1, "white": 0, "red"  : 0, "blue" : 2, "green": 2}));
-        alice.addCard(CardFactory.newCard("white", 2, {"black": 3, "white": 0, "red"  : 5, "blue" : 0, "green": 0}));
-        alice.addCard(CardFactory.newCard("black", 1, {"black": 0, "white": 0, "red"  : 0, "blue" : 4, "green": 0}));
-        alice.addCard(CardFactory.newCard("black", 1, {"black": 0, "white": 3, "red"  : 0, "blue" : 2, "green": 2}));
-        alice.addCard(CardFactory.newCard("blue" , 0, {"black": 3, "white": 0, "red"  : 0, "blue" : 0, "green": 0}));
-        alice.addCard(CardFactory.newCard("blue" , 0, {"black": 1, "white": 1, "red"  : 1, "blue" : 0, "green": 1}));
-        alice.addCard(CardFactory.newCard("blue" , 3, {"black": 0, "white": 0, "red"  : 0, "blue" : 6, "green": 0}));
-        alice.points = 7;
+            var alice = $scope.players['alice'];
+            alice.addCard(CardFactory.newCard("white", 0, {"black": 1, "white": 0, "red": 0, "blue": 2, "green": 2}));
+            alice.addCard(CardFactory.newCard("white", 2, {"black": 3, "white": 0, "red": 5, "blue": 0, "green": 0}));
+            alice.addCard(CardFactory.newCard("black", 1, {"black": 0, "white": 0, "red": 0, "blue": 4, "green": 0}));
+            alice.addCard(CardFactory.newCard("black", 1, {"black": 0, "white": 3, "red": 0, "blue": 2, "green": 2}));
+            alice.addCard(CardFactory.newCard("blue", 0, {"black": 3, "white": 0, "red": 0, "blue": 0, "green": 0}));
+            alice.addCard(CardFactory.newCard("blue", 0, {"black": 1, "white": 1, "red": 1, "blue": 0, "green": 1}));
+            alice.addCard(CardFactory.newCard("blue", 3, {"black": 0, "white": 0, "red": 0, "blue": 6, "green": 0}));
+            alice.points = 7;
 
-        var bob = $scope.players['bob'];
-        bob.addCard(CardFactory.newCard("blue" , 0, {"black": 2, "white": 0, "red"  : 0, "blue" : 0, "green": 2}));
+            var bob = $scope.players['bob'];
+            bob.addCard(CardFactory.newCard("blue", 0, {"black": 2, "white": 0, "red": 0, "blue": 0, "green": 2}));
 
-        bob.addCard(CardFactory.newCard("blue" , 0, {"black": 1, "white": 1, "red"  : 2, "blue" : 0, "green": 1}));
-        bob.addCard(CardFactory.newCard("blue" , 0, {"black": 0, "white": 1, "red"  : 2, "blue" : 0, "green": 2}));
-        bob.addCard(CardFactory.newCard("blue" , 0, {"black": 0, "white": 0, "red"  : 1, "blue" : 1, "green": 3}));
-        bob.addCard(CardFactory.newCard("green", 0, {"black": 0, "white": 1, "red"  : 0, "blue" : 3, "green": 1}));
-        bob.addCard(CardFactory.newCard("red"  , 3, {"black": 0, "white": 0, "red"  : 6, "blue" : 0, "green": 0}));
-        bob.addCard(CardFactory.newCard("red"  , 0, {"black": 0, "white": 2, "red"  : 2, "blue" : 0, "green": 0}));
-        bob.addCard(CardFactory.newCard("red"  , 0, {"black": 0, "white": 3, "red"  : 0, "blue" : 0, "green": 0}));
-        bob.addCard(CardFactory.newCard("red"  , 1, {"black": 0, "white": 4, "red"  : 0, "blue" : 0, "green": 0}));
-        bob.points = 4;
-
-    };
-
-    function aliceTurn1(){
-        $scope.players['you'].resetGemChanges();
-        $scope.selected_gems=['green', 'red', 'white']; //takes 2 greens
-        $scope.takeGems('alice'); //takes green, red, white
-    };
-    function aliceTurn2(){
-        $scope.players['you'].resetGemChanges();
-        $scope.buyCard('alice', 'deck 1', 1); //white ->needs black red blue green but she has black and blue
-    };
-    function aliceTurn3(){
-        $scope.players['you'].resetGemChanges();
-        $scope.selected_gems=['green', 'green']; //takes 2 greens
-        $scope.takeGems('alice');
-    };
-    function aliceTurn4(){
-        $scope.players['you'].resetGemChanges();
-        $scope.reserveCard('alice', 'deck 2', 1);
-    };
-    function aliceTurn5(){
-        $scope.players['you'].resetGemChanges();
-        $scope.buyCard('alice', 'reserved', 0) //need 2 black 3 green 3 white -> gets 3 black 3 blue 3 white
-    };
-    function bobTurn1(){
-        $scope.players['alice'].resetGemChanges();
-        $scope.selected_gems=['blue', 'blue']; //takes 2 blues
-        $scope.takeGems('bob');
-    };
-    function bobTurn2(){
-        $scope.players['alice'].resetGemChanges();
-        $scope.buyCard('bob', 'deck 1', 2) //green: needs 2 red 2 blue, he has 4 blue buildings and 1 green buildings already (and 3 red buildings...) so he has 2 blue gems lol.
-    };
-    function bobTurn3(){
-        $scope.players['alice'].resetGemChanges();
-        $scope.buyCard('bob', 'deck 1', 0)//green - should be needing 3 reds but he has it lol. he now has 4 blue 2 green 4 red
-    };
-    function bobTurn4(){
-        $scope.players['alice'].resetGemChanges();
-        $scope.buyCard('bob', 'deck 2', 2) //blue: needs 3 red 2 blue 2 green, he has 4 blue buildings and 3 green buildings already (and 4 red buildings...) so he has 2 blue gems lol.
-    };
-    function bobTurn5(){
-        $scope.players['alice'].resetGemChanges();
-        $scope.buyCard('bob', 'deck 3', 1) //green: needs 7 blue 3 green, he has 5 blue buildings and 3 green buildings already (and 4 red buildings...) so he has 2 blue gems lol.
-    };
-    function yourTurn1(){
-        $scope.players['bob'].resetGemChanges();
-        $scope.buyCard('you', 'deck 1', 0)
-    };
-    function yourTurn2(){
-        $scope.players['bob'].resetGemChanges();
-        $scope.reserveCard('you', 'deck 3', 2);
-    };
-    function yourTurn3(){
-        $scope.players['bob'].resetGemChanges();
-        $scope.buyCard('you', 'reserved', 0)
-    };
-    function yourTurn4(){
-        $scope.players['bob'].resetGemChanges();
-        $scope.reserveCard('you', 'deck 3', 0);
-    };
-    function yourTurn5(){
-        $scope.players['bob'].resetGemChanges();
-        $scope.buyCard('you', 'reserved', 0)
-    };
-
-    function dummyFunctionBecauseJoyRideCantSelectElementsCreatedByPriorStep(){
+            bob.addCard(CardFactory.newCard("blue", 0, {"black": 1, "white": 1, "red": 2, "blue": 0, "green": 1}));
+            bob.addCard(CardFactory.newCard("blue", 0, {"black": 0, "white": 1, "red": 2, "blue": 0, "green": 2}));
+            bob.addCard(CardFactory.newCard("blue", 0, {"black": 0, "white": 0, "red": 1, "blue": 1, "green": 3}));
+            bob.addCard(CardFactory.newCard("green", 0, {"black": 0, "white": 1, "red": 0, "blue": 3, "green": 1}));
+            bob.addCard(CardFactory.newCard("red", 3, {"black": 0, "white": 0, "red": 6, "blue": 0, "green": 0}));
+            bob.addCard(CardFactory.newCard("red", 0, {"black": 0, "white": 2, "red": 2, "blue": 0, "green": 0}));
+            bob.addCard(CardFactory.newCard("red", 0, {"black": 0, "white": 3, "red": 0, "blue": 0, "green": 0}));
+            bob.addCard(CardFactory.newCard("red", 1, {"black": 0, "white": 4, "red": 0, "blue": 0, "green": 0}));
+            bob.points = 4;
+        }else{
+            $scope.resetPlayers();
+            $scope.resetGems();
+        }
 
     };
+
+    function aliceTurn1(addedNodes){
+        if(addedNodes){
+            $scope.players['you'].resetGemChanges();
+            $scope.selected_gems=['green', 'red', 'white']; //takes 2 greens
+            $scope.takeGems('alice'); //takes green, red, white
+        }else{
+            $scope.giveBackGems('alice', ['green', 'red', 'white']);
+            $scope.players['alice'].resetGemChanges();
+            $scope.players['you'].unResetGemChanges();
+            $scope.$apply();
+        }
+        
+    };
+    function aliceTurn2(addedNodes){
+        if(addedNodes){
+            $scope.players['you'].resetGemChanges();
+            $scope.buyCard('alice', 'deck 1', 1); //white ->needs black red blue green but she has black and blue
+            $scope.$apply();
+        }else{
+            $scope.players['alice'].resetGemChanges();
+            $scope.players['you'].unResetGemChanges();
+            $scope.unBuyLastCard('alice', 'deck 1', 1);
+            $scope.$apply();
+        }
+        
+    };
+    function aliceTurn3(addedNodes){
+        if(addedNodes){
+            $scope.players['you'].resetGemChanges();
+            $scope.selected_gems=['green', 'green']; //takes 2 greens
+            $scope.takeGems('alice');
+            $scope.$apply();
+        }else{
+            $scope.players['alice'].resetGemChanges();
+            $scope.players['you'].unResetGemChanges();
+            $scope.giveBackGems('alice', ['green', 'green']);
+            $scope.$apply();
+        }
+    };
+    function aliceTurn4(addedNodes){
+        if(addedNodes){
+            $scope.players['you'].resetGemChanges();
+            $scope.reserveCard('alice', 'deck 2', 1);
+            $scope.$apply();
+        }else{
+            $scope.players['alice'].resetGemChanges();
+            $scope.players['you'].unResetGemChanges();
+            $scope.unReserveLastCard('alice', 'deck 2', 1);
+            $scope.$apply();
+        }
+        
+    };
+    function aliceTurn5(addedNodes){
+        if(addedNodes){
+            $scope.players['you'].resetGemChanges();
+            $scope.buyCard('alice', 'reserved', 0) //need 2 black 3 green 3 white -> gets 3 black 3 blue 3 white
+            $scope.$apply();
+        }else{
+            $scope.players['alice'].resetGemChanges();
+            $scope.players['you'].unResetGemChanges();
+            $scope.unBuyLastCard('alice', 'reserved', 0);
+            $scope.$apply();
+        }
+    };
+    function bobTurn1(addedNodes){
+        if(addedNodes){
+            $scope.players['alice'].resetGemChanges();
+            $scope.selected_gems=['blue', 'blue']; //takes 2 blues
+            $scope.takeGems('bob');
+        }else{
+            $scope.giveBackGems('bob', ['blue', 'blue']);
+            $scope.players['bob'].resetGemChanges();
+            $scope.players['alice'].unResetGemChanges();
+            $scope.$apply(); 
+        }
+        
+    };
+    function bobTurn2(addedNodes){
+        if(addedNodes){
+            $scope.players['alice'].resetGemChanges();
+            $scope.buyCard('bob', 'deck 1', 2) //green: needs 2 red 2 blue, he has 4 blue buildings and 1 green buildings already (and 3 red buildings...) so he has 2 blue gems lol.
+            $scope.$apply();
+        }else{
+            $scope.players['bob'].resetGemChanges();
+            $scope.players['alice'].unResetGemChanges();
+            $scope.unBuyLastCard('bob', 'deck 1', 2);
+            $scope.$apply();
+        }
+    };
+    function bobTurn3(addedNodes){
+        if(addedNodes){
+            $scope.players['alice'].resetGemChanges();
+            $scope.buyCard('bob', 'deck 1', 0)//green - should be needing 3 reds but he has it lol. he now has 4 blue 2 green 4 red
+            $scope.$apply();
+        }else{
+            $scope.players['bob'].resetGemChanges();
+            $scope.players['alice'].unResetGemChanges();
+            $scope.unBuyLastCard('bob', 'deck 1', 0);
+            $scope.$apply();
+        }
+    };
+    function bobTurn4(addedNodes){
+        if(addedNodes){
+            $scope.players['alice'].resetGemChanges();
+            $scope.buyCard('bob', 'deck 2', 2) //blue: needs 3 red 2 blue 2 green, he has 4 blue buildings and 3 green buildings already (and 4 red buildings...) so he has 2 blue gems lol.
+            $scope.$apply();
+        }else{
+            $scope.players['bob'].resetGemChanges();
+            $scope.players['alice'].unResetGemChanges();
+            $scope.unBuyLastCard('bob', 'deck 2', 2);
+            $scope.$apply();
+        }
+    };
+    function bobTurn5(addedNodes){
+        if(addedNodes){
+            $scope.players['alice'].resetGemChanges();
+            $scope.buyCard('bob', 'deck 3', 1) //green: needs 7 blue 3 green, he has 5 blue buildings and 3 green buildings already (and 4 red buildings...) so he has 2 blue gems lol.
+            $scope.$apply();
+        }else{
+            $scope.players['bob'].resetGemChanges();
+            $scope.players['alice'].unResetGemChanges();
+            $scope.unBuyLastCard('bob', 'deck 3', 1);
+            $scope.$apply();
+        }
+        
+    };
+    function yourTurn1(addedNodes){
+        if(addedNodes){
+            $scope.players['bob'].resetGemChanges();
+            $scope.buyCard('you', 'deck 1', 0);
+            $scope.$apply();
+        }else{
+            $scope.players['you'].resetGemChanges();
+            $scope.players['bob'].unResetGemChanges();
+            $scope.unBuyLastCard('you', 'deck 1', 0);
+            $scope.$apply();
+        }
+        
+    };
+    function yourTurn2(addedNodes){
+        if(addedNodes){
+            $scope.players['bob'].resetGemChanges();
+            $scope.reserveCard('you', 'deck 3', 2);
+            $scope.$apply();
+        }else{
+            $scope.players['you'].resetGemChanges();
+            $scope.players['bob'].unResetGemChanges();
+            $scope.unReserveLastCard('you', 'deck 3', 2);
+            $scope.$apply();
+        }
+        
+    };
+    function yourTurn3(addedNodes){
+        if(addedNodes){
+            $scope.players['bob'].resetGemChanges();
+            $scope.buyCard('you', 'reserved', 0);
+            $scope.$apply();
+        }else{
+            $scope.players['you'].resetGemChanges();
+            $scope.players['bob'].unResetGemChanges();
+            $scope.unBuyLastCard('you', 'reserved', 0);
+            $scope.$apply();
+        }
+    };
+    function yourTurn4(addedNodes){
+        if(addedNodes){
+            $scope.players['bob'].resetGemChanges();
+            $scope.reserveCard('you', 'deck 3', 0);
+            $scope.$apply();
+        }else{
+            $scope.players['you'].resetGemChanges();
+            $scope.players['bob'].unResetGemChanges();
+            $scope.unReserveLastCard('you', 'deck 3', 0);
+            $scope.$apply();
+        }
+        
+    };
+    function yourTurn5(addedNodes){
+        if(addedNodes){
+            $scope.players['bob'].resetGemChanges();
+            $scope.buyCard('you', 'reserved', 0)
+            $scope.$apply();
+        }else{
+            $scope.players['you'].resetGemChanges();
+            $scope.players['bob'].unResetGemChanges();
+            $scope.unBuyLastCard('you', 'reserved', 0);
+            $scope.$apply();
+        }
+        
+    };
+    
 
     function endTutorial(){
         $scope.resetPlayers();
@@ -1103,13 +1320,13 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
             scroll: true
         },
         {
-         type: "element",
-         selector: ".alice-total-gem-count",
-         heading: "The Board",
-         text: "Be careful though, you can only have 10 gems max at the end of your turn. It is now Bob's turn.",
-         placement: "left",
+             type: "element",
+             selector: ".alice-total-gem-count",
+             heading: "The Board",
+             text: "Be careful though, you can only have 10 gems max at the end of your turn. It is now Bob's turn.",
+             placement: "left",
             scrollPadding: 250,
-         scroll: true
+             scroll: true
          },
         {
             type: "function",
@@ -1157,10 +1374,6 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
             fn: aliceTurn2 //(can also be a string, which will be evaluated on the scope)
         },
         {
-            type: "function",
-            fn: dummyFunctionBecauseJoyRideCantSelectElementsCreatedByPriorStep //(can also be a string, which will be evaluated on the scope)
-        },
-        {
             type: "element",
             selector: ".alice-white-2",
             heading: "The Board",
@@ -1172,10 +1385,6 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
         {
             type: "function",
             fn: bobTurn2 //(can also be a string, which will be evaluated on the scope)
-        },
-        {
-            type: "function",
-            fn: dummyFunctionBecauseJoyRideCantSelectElementsCreatedByPriorStep //(can also be a string, which will be evaluated on the scope)
         },
         {
             type: "element",
@@ -1196,10 +1405,6 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
         {
             type: "function",
             fn: yourTurn3 //(can also be a string, which will be evaluated on the scope)
-        },
-        {
-            type: "function",
-            fn: dummyFunctionBecauseJoyRideCantSelectElementsCreatedByPriorStep //(can also be a string, which will be evaluated on the scope)
         },
         {
             type: "element",
@@ -1251,10 +1456,6 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
             fn: bobTurn3 //(can also be a string, which will be evaluated on the scope)
         },
         {
-            type: "function",
-            fn: dummyFunctionBecauseJoyRideCantSelectElementsCreatedByPriorStep //(can also be a string, which will be evaluated on the scope)
-        },
-        {
             type: "element",
             selector: ".bob-green-2",
             heading: "The Board",
@@ -1281,7 +1482,7 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
         },
         {
             type: "element",
-            selector: ".alice-gold-count",
+            selector: "#alice > .image-and-stats > .reserved-count",
             heading: "The Board",
             text: "Alice reserved a card.",
             scrollPadding: 250,
@@ -1291,10 +1492,6 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
         {
             type: "function",
             fn: bobTurn4 //(can also be a string, which will be evaluated on the scope)
-        },
-        {
-            type: "function",
-            fn: dummyFunctionBecauseJoyRideCantSelectElementsCreatedByPriorStep //(can also be a string, which will be evaluated on the scope)
         },
         {
             type: "element",
@@ -1329,10 +1526,6 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
             fn: aliceTurn5 //(can also be a string, which will be evaluated on the scope)
         },
         {
-            type: "function",
-            fn: dummyFunctionBecauseJoyRideCantSelectElementsCreatedByPriorStep //(can also be a string, which will be evaluated on the scope)
-        },
-        {
             type: "element",
             selector: ".alice-black-2",
             heading: "The Board",
@@ -1349,10 +1542,6 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
             placement: "left",
             scrollPadding: 250,
             scroll: true
-        },
-        {
-            type: "function",
-            fn: dummyFunctionBecauseJoyRideCantSelectElementsCreatedByPriorStep //(can also be a string, which will be evaluated on the scope)
         },
         {
             type: "element",
@@ -1402,10 +1591,6 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
         {
             type: "function",
             fn: bobTurn5 //(can also be a string, which will be evaluated on the scope)
-        },
-        {
-            type: "function",
-            fn: dummyFunctionBecauseJoyRideCantSelectElementsCreatedByPriorStep //(can also be a string, which will be evaluated on the scope)
         },
         {
             type: "element",
@@ -1579,6 +1764,11 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
     function Noble(points, requirements) {
         this.points = points;
         this.requirements = requirements;
+        this.oldLocation = -1;
+        
+        this.setOldLocation = function(i){
+            this.oldLocation = i;
+        }
     }
 
     return {
@@ -1589,7 +1779,14 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
 }).factory('PlayerFactory', function() {
     function Player(name, deck, gems) {
         this.name = name;
-
+        this.noblesAdded = [];
+        this.cardsBuilt = [];
+        this.cardCosts = [];
+        this.reservedCardsOrder = [];
+        
+        this.getOldCost = function(){
+            return this.cardCosts[this.cardCosts.length-1];
+        };
         
         this.buyCard = function(card){
             var card_costs = card.cost;
@@ -1610,7 +1807,19 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
             this.gemChange["gold"] =- gold_needed;
             this.deck[card.color].push(card);
             amt_repaid["gold"] = gold_needed;
+            this.cardCosts.push(amt_repaid);
+            this.cardsBuilt.push(card);
             return amt_repaid;
+        };
+
+        this.unBuyLastCard = function(){
+            var lastCard = this.cardsBuilt.pop();
+            this.deck[lastCard.color].pop();
+            this.points -= lastCard.points;
+            var last_costs = this.cardCosts.pop();
+            for(var c in last_costs){
+                this.gems[c] += last_costs[c];
+            }
         };
         
         this.addCard = function(card){
@@ -1634,21 +1843,44 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
             }
             return gold_needed <= this.gems['gold'];
         };
-        this.addNoble = function(noble){
-            this.nobles.push(noble);
-            this.points += noble.points;
+        this.addNobles = function(nobles){
+            for(var i = 0; i < nobles.length; i++){
+                var noble = nobles[i];
+                this.nobles.push(noble);
+                this.points += noble.points;
+            }
+            this.noblesAdded.push(nobles); //can be empty lol.
+        };
+        this.popLastNobles = function(){
+            var last_nobles = this.noblesAdded.pop();
+            for(var i = 0; i < last_nobles.length; i++){
+                var noble = last_nobles[i];
+                for(var j = 0; j < this.nobles.length; j++){
+                    if(this.nobles[j].id == noble.id){
+                        this.nobles.splice(j,1);
+                        this.points -= noble.points;
+                        break;
+                    }
+                }
+            }
+            return last_nobles;
+        };
+        this.getLastNobles = function(){
+            return this.noblesAdded[this.noblesAdded.length-1];
         };
         this.addGem = function(color){
             this.gems[color] += 1;
             this.gemChange[color] += 1;
         };
-        
-        
-        
+
         this.nextPlayer = null;
         
         this.setNextPlayer = function(player){
             this.nextPlayer = player;
+        };
+        
+        this.unResetGemChanges = function(){
+            this.gemChange = this.oldGemChange;
         };
         
         this.setStartingPlayer = function(){
@@ -1668,8 +1900,20 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
         };
         
         this.reserveCard = function(card){
+            
+            this.lastReservedCard = card;
             if(this.getReservedCards().length < 3){
                 this.reservedCards.push(card);
+                this.reservedCardsOrder.push(card);
+            }
+        };
+
+        this.unReserveLastCard = function(){
+            var lastReservedCard = this.reservedCardsOrder.pop();
+            for(var i = 0; i < this.reservedCards.length; i++){
+                if(this.reservedCards[i].id == lastReservedCard.id){
+                    this.reservedCards.splice(i, 1);
+                }
             }
         };
         
@@ -1680,6 +1924,17 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
         this.getPoints = function(){
             return this.points;
         };
+        
+        this.getLastReservedCard = function(){
+            return this.reservedCardsOrder[this.reservedCardsOrder.length-1];
+        };
+        this.popLastBoughtCard = function(){
+            return this.cardsBuilt.pop();
+        };
+        this.getLastBoughtCard = function(){
+            return this.cardsBuilt[this.cardsBuilt.length-1];
+        };
+
         
         this.gemCount = function(){
             var total = 0;
@@ -1694,6 +1949,7 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
         };
 
         this.resetGemChanges = function(){
+            this.oldGemChange = this.gemChange;
             this.gemChange = { //TODO: refer to factory colors instead of manually
                 "black": 0,
                 "white": 0,
@@ -1702,6 +1958,10 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
                 "green": 0,
                 "gold": 0
             };
+        };
+        
+        this.removeGem = function(color){
+            this.gems[color] -= 1;
         };
         
         this.reset = function(){
@@ -1722,6 +1982,14 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
                 "gold": 0
             };
             this.gemChange = { //TODO: refer to factory colors instead of manually
+                "black": 0,
+                "white": 0,
+                "red": 0,
+                "blue": 0,
+                "green": 0,
+                "gold": 0
+            };
+            this.oldGemChange = { //TODO: refer to factory colors instead of manually
                 "black": 0,
                 "white": 0,
                 "red": 0,

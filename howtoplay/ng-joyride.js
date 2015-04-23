@@ -81,10 +81,11 @@
 
             function generate() {
                 $fkEl = $(this.selector);
+                
                 _highlightElement.call(this);
+                
                 handleClicksOnElement();
                 this.addClassToCurtain(this.curtainClass);
-                console.log($fkEl)
                 return _generateHtml.call(this).then(angular.bind(this, _generatePopover)).then(angular.bind(this, _showTooltip));
 
 
@@ -98,7 +99,6 @@
                 $fkEl.on("click",stopEvent);
             }
             function _generateHtml() {
-
                 var promise = this.loadTemplateFn(this.template);
                 return promise;
 
@@ -106,6 +106,7 @@
             }
 
             function _generatePopover(html) {
+
                 $fkEl.popover({
                     title: this.heading,
                     template: html,
@@ -134,7 +135,6 @@
                 if(this.scrollPadding){
                     paddingTop = this.scrollPadding;
                 }
-                console.log($fkEl);
                 $('html, body').animate({
                     scrollTop: $fkEl.offset().top - paddingTop
                 }, 1000);
@@ -369,7 +369,6 @@
             link: function (scope, element, attrs) {
                 var steps = [];
                 if(scope.curStep == null || scope.curStep === undefined){ scope.curStep == 0;}
-                console.log(scope.curStep);
                 var currentStepCount = scope.curStep;
                 var options = {
                     config : scope.config,
@@ -410,11 +409,11 @@
                     steps[currentStepCount].cleanUp();
                     var requires_timeout = false;
                     currentStepCount -= 1;
-
                     // Rollback previous steps until we hit a title or element.
                     while ((steps[currentStepCount].type === "location_change" || steps[currentStepCount].type === "function")
                     && currentStepCount >= 1) {
                         requires_timeout = true;
+                        
                         if (steps[currentStepCount].type == "location_change") {
                             scope.$evalAsync(function () {
                                 steps[currentStepCount].rollback();
@@ -427,10 +426,10 @@
                     }
 
                     if (requires_timeout) {
-                        console.log('timeout')
                         $timeout(generateStep, 100);
                     }
                     else {
+                        
                         generateStep();
                     }
                 }
@@ -496,7 +495,7 @@
                 }
 
                 function generateStep() {
-                    console.log(steps);
+                    
                     var currentStep = steps[currentStepCount];
 
                     currentStep.generate();
