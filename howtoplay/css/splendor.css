@@ -212,13 +212,13 @@
     width: 500px; /*TODO: make this responsive */
     margin: 0 auto;
 }
-#level3-cards, #level2-cards, #level1-cards, #nobles{
+#level3-cards, #level2-cards, #level1-cards, #nobles-cards{
     position:relative;
     margin: 0 auto;
     width:100%;
 }
 
-#level3-cards > .card, #level2-cards > .card, #level1-cards > .card, #nobles > .noble{
+#level3-cards > .card, #level2-cards > .card, #level1-cards > .card, #nobles-cards > .noble{
     position: relative;
     display: inline-block;
     text-align: left;
@@ -254,6 +254,16 @@
     position:relative;
 }
 
+#nobles{
+    border: 1px solid;
+    margin-bottom: 30px;
+}
+.deck-label{
+    display: inline-block;
+    vertical-align: middle;
+    margin-top: -72.5px; /* TODO: make this responsive */
+    
+}
 /* overlay styles, all needed */
 .overlay {
     position: absolute;

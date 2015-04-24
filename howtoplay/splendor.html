@@ -22,6 +22,7 @@
                             </div>
                         </div>
                         <div class = 'nobles-and-cards'>
+                            
                             <div class="nobles">
                                 <div ng-repeat="(index, c) in p['nobles']" class="noble-container">
                                     <noble points="c.points" requirements="c.requirements"  >
@@ -59,19 +60,26 @@
                 </div>
                 <div id="board" ng-show="(demoStarted || learningGame)">
                     <div id = "nobles" align="center">
+                        <div id="nobles-label">Nobles</div>
+                        <div id="nobles-cards">
                         <noble ng-repeat="(index, c) in board_nobles"  points="c.points" requirements="c.requirements" >
                         </noble>
+                        </div>
                     </div>
                     <div class="board-cards">
                     <div id = "level3-cards" align="center">
+                        <div id="level3-label" class="deck-label">Deck 3: </div>
+                        
                         <card ng-repeat="(index, c) in board['deck 3']" class="deck-3-~~index%$" points="c.points" color="c.color" cost="c.cost" ng-click="showBuyButton('deck 3', index); showReserveButton('deck 3', index)" ng-class="{'selected': selected_deck == 'deck 3' && selected_card_index == index}" >
                         </card>
                     </div>
                     <div id = "level2-cards" align="center">
+                        <div id="level2-label" class="deck-label">Deck 2: </div>
                         <card ng-repeat="(index, c) in board['deck 2']" class="deck-2-~~index%$" points="c.points" color="c.color" cost="c.cost" ng-click="showBuyButton('deck 2', index); showReserveButton('deck 2', index)" ng-class="{'selected': selected_deck == 'deck 2' && selected_card_index == index}">
                         </card>
                     </div>
                     <div id = "level1-cards" align="center">
+                        <div id="level1-label" class="deck-label">Deck 1: </div>
                         <card ng-repeat="(index, c) in board['deck 1']" class="deck-1-~~index%$" points="c.points" color="c.color" cost="c.cost" ng-click="showBuyButton('deck 1', index); showReserveButton('deck 1', index)" ng-class="{'selected': selected_deck == 'deck 1' && selected_card_index == index}">
                         </card>
                     </div>
