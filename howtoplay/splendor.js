@@ -1373,7 +1373,7 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
             type: "element",
             selector: "#you > .image-and-stats > .reserved-cards",
             heading: "The Board",
-            text: "When you reserve a card, only you can build it, but only on a future turn. You can only reserve 3 cards max.",
+            text: "When you reserve a card, only you can build it, but only on a future turn. You can only reserve 3 cards max. The only way to get rid of a reserved card is to buy it on a future turn (reserving takes up your turn).",
             placement: "left",
             scroll: true
         },
