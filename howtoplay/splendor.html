@@ -10,10 +10,11 @@
                 <div ng-repeat="p in players">
                     <div id="~~p.name%$" ng-class="{'selected': curPlayer.name == p.name}" class="player-block">
                         <div class="image-and-stats">
+                            <div class="player-name">~~p.name%$</div>
                             <img src="/howtoplay/img/chars/~~p.name%$.jpg" style="width:95px; height:130px;">
                             <img src="/howtoplay/img/first.png" style="width:50px; height:50px;" ng-if="p.firstPlayer" class="first-player">
                             <div class="~~p.name%$-point-count">Points: ~~getPlayerPoints(p.name)%$</div>
-                            <div class="~~p.name%$-gold-count">Gold: ~~getPlayerGemCount(p.name, 'gold')%$ <span class="gem-change" ng-if="getPlayerGemChange(p.name, 'gold') != 0" ng-class="{'gem-change-increase':getPlayerGemChange(p.name, 'gold') > 0, 'gem-change-decrease': getPlayerGemChange(p.name, 'gold') <0} "> &nbsp(~~(getPlayerGemChange(p.name, 'gold') > 0 ? '+' : '') + getPlayerGemChange(p.name, 'gold')%$)</span></div>
+                            <div class="~~p.name%$-gold-count">Gold: ~~getPlayerGemCount(p.name, 'gold')%$<span class="gem-change" ng-if="getPlayerGemChange(p.name, 'gold') != 0" ng-class="{'gem-change-increase':getPlayerGemChange(p.name, 'gold') > 0, 'gem-change-decrease': getPlayerGemChange(p.name, 'gold') <0} "> &nbsp(~~(getPlayerGemChange(p.name, 'gold') > 0 ? '+' : '') + getPlayerGemChange(p.name, 'gold')%$)</span></div>
                             <div class="~~p.name%$-total-gem-count">Total Gems: ~~p.gemCount()%$</div>
                             <div class="reserved-count" ng-if="p.name !='you'">Reserved Cards: ~~p['reservedCards'].length%$</div>
                             <div class="reserved-cards" ng-if="p.name=='you'">
@@ -34,7 +35,7 @@
                                     <div class="gem">
                                         <span class = "color ~~color%$" >&nbsp</span>
                                         <div class="gem-count">
-                                            <div class="~~p.name%$-~~color%$-gem-count gem-count-label">Gems: ~~getPlayerGemCount(p.name, color)%$<span class="gem-change" ng-if="getPlayerGemChange(p.name, color) != 0" ng-class="{'gem-change-increase':getPlayerGemChange(p.name, color) > 0, 'gem-change-decrease': getPlayerGemChange(p.name, color) <0} ">(~~(getPlayerGemChange(p.name, color) > 0 ? '+' : '') + getPlayerGemChange(p.name, color)%$)</span></div>
+                                            <div class="~~p.name%$-~~color%$-gem-count gem-count-label">Gems: ~~getPlayerGemCount(p.name, color)%$<span class="gem-change" ng-if="getPlayerGemChange(p.name, color) != 0" ng-class="{'gem-change-increase':getPlayerGemChange(p.name, color) > 0, 'gem-change-decrease': getPlayerGemChange(p.name, color) <0} ">&nbsp(~~(getPlayerGemChange(p.name, color) > 0 ? '+' : '') + getPlayerGemChange(p.name, color)%$)</span></div>
                                             <div class="~~p.name%$-~~color%$-building-count">Cards: ~~getPlayerBuildingCount(p.name, color)%$</div>
                                             <div>Total: ~~getPlayerGemCount(p.name, color)+getPlayerBuildingCount(p.name, color)%$</div>
                                         </div>
@@ -67,18 +68,18 @@
                         </div>
                     </div>
                     <div class="board-cards">
-                    <div id = "level3-cards" align="center">
+                    <div id = "level3-cards" align="center" ng-show="board['deck 3'].length > 0">
                         <div id="level3-label" class="deck-label">Deck 3: </div>
                         
                         <card ng-repeat="(index, c) in board['deck 3']" class="deck-3-~~index%$" points="c.points" color="c.color" cost="c.cost" ng-click="showBuyButton('deck 3', index); showReserveButton('deck 3', index)" ng-class="{'selected': selected_deck == 'deck 3' && selected_card_index == index}" >
                         </card>
                     </div>
-                    <div id = "level2-cards" align="center">
+                    <div id = "level2-cards" align="center" ng-show="board['deck 2'].length > 0">
                         <div id="level2-label" class="deck-label">Deck 2: </div>
                         <card ng-repeat="(index, c) in board['deck 2']" class="deck-2-~~index%$" points="c.points" color="c.color" cost="c.cost" ng-click="showBuyButton('deck 2', index); showReserveButton('deck 2', index)" ng-class="{'selected': selected_deck == 'deck 2' && selected_card_index == index}">
                         </card>
                     </div>
-                    <div id = "level1-cards" align="center">
+                    <div id = "level1-cards" align="center" ng-show="board['deck 1'].length > 0">
                         <div id="level1-label" class="deck-label">Deck 1: </div>
                         <card ng-repeat="(index, c) in board['deck 1']" class="deck-1-~~index%$" points="c.points" color="c.color" cost="c.cost" ng-click="showBuyButton('deck 1', index); showReserveButton('deck 1', index)" ng-class="{'selected': selected_deck == 'deck 1' && selected_card_index == index}">
                         </card>
@@ -107,8 +108,7 @@
         </div>
         <div id="return-gems" ng-show="gemsReturned">
             <div class="overlay"></div>
-            WTF??!?!?
-            <div class="modal">You have more than 10 gems. Return 10 gems.
+            <div class="modal">You have more than 10 gems. Return ~~getPlayerGemCount('you', color)-10%$ gems.
                 <div class="row">
                     <div class="col-xs-3">
                         Gem
@@ -136,6 +136,21 @@
                     </div>
                     <div class="col-xs-3">
                         ~~getPlayerGemCount('you', color)-returnedGems[color]%$
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-3">
+                        <div class="gem"><span class = "color gold" >&nbsp</span>
+                        </div>
+                    </div>
+                    <div class="col-xs-3">
+                        ~~getPlayerGemCount('you', 'gold')%$
+                    </div>
+                    <div class="col-xs-3">
+                        <input type="number" ng-model="returnedGems['gold']" ng-disabled="getPlayerGemCount('you', 'gold') <= 0" min="0" max="~~getPlayerGemCount('you', 'gold')%$">
+                    </div>
+                    <div class="col-xs-3">
+                        ~~getPlayerGemCount('you', 'gold')-returnedGems['gold']%$
                     </div>
                 </div>
                 <div class="row">

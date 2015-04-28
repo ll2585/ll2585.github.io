@@ -332,7 +332,7 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
             boardDeck = $scope.board[deck];
             gameDeck = $scope.decks[deck];
             var newCard = boardDeck.splice(number, 1)[0];//remove the new card
-        };
+        }
         var lastCard = player.getLastBoughtCard();
         boardDeck.splice(number, 0, lastCard);//put the old card back
         var player_paid = player.getOldCost(); //its really buy and return the amt repaid
@@ -361,7 +361,7 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
         if(number < boardDeck.length){ //TODO: alert if its not. actually it doesn't matter since this is just a tutorial, but for a full game implementation...
             var player = $scope.getPlayer(player);
             var card = boardDeck[number];
-            boardDeck.splice(number, 1)[0];
+            boardDeck.splice(number, 1);
             player.reserveCard(card); //its really buy and return the amt repaid
             if($scope.getGemCount("gold")>=1){
                 player.addGem("gold");
@@ -433,7 +433,7 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
             $scope.getPlayer(player).removeGem(color);
             $scope.gemCount[color] += 1;
         }
-    }
+    };
     $scope.resetSelectGems = function(){
         $scope.want_two_gems = false;
         $scope.want_three_gems = false;
@@ -719,9 +719,9 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
         shuffle($scope.nobles);
     };$scope.drawDeck = function(){
         $scope.board = {
-            'deck 1': [$scope.decks['deck 1'].pop(), $scope.decks['deck 1'].pop(), $scope.decks['deck 1'].pop()],
-            'deck 2': [$scope.decks['deck 2'].pop(), $scope.decks['deck 2'].pop(), $scope.decks['deck 2'].pop()],
-            'deck 3': [$scope.decks['deck 3'].pop(), $scope.decks['deck 3'].pop(), $scope.decks['deck 3'].pop()]
+            'deck 1': [$scope.decks['deck 1'].pop(), $scope.decks['deck 1'].pop(), $scope.decks['deck 1'].pop(), $scope.decks['deck 1'].pop()],
+            'deck 2': [$scope.decks['deck 2'].pop(), $scope.decks['deck 2'].pop(), $scope.decks['deck 2'].pop(), $scope.decks['deck 2'].pop()],
+            'deck 3': [$scope.decks['deck 3'].pop(), $scope.decks['deck 3'].pop(), $scope.decks['deck 3'].pop(), $scope.decks['deck 3'].pop()]
         };
     };
     $scope.drawNobles = function(){
@@ -810,7 +810,7 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
             ];
             $scope.decks = {
                 'deck 1': [
-                    CardFactory.newCard("green", 0, {"black": 0, "white": 2, "red"  : 0, "blue" : 1, "green": 0}),
+                   
                     CardFactory.newCard("white", 0, {"black": 0, "white": 0, "red"  : 0, "blue" : 3, "green": 0}),
                     CardFactory.newCard("white", 0, {"black": 1, "white": 0, "red"  : 2, "blue" : 0, "green": 0}),
 
@@ -846,12 +846,13 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
                     CardFactory.newCard("black", 0, {"black": 0, "white": 2, "red"  : 1, "blue" : 2, "green": 0}),
 
                     CardFactory.newCard("green", 0, {"black": 0, "white": 0, "red"  : 3, "blue" : 0, "green": 0}),
+                    CardFactory.newCard("green", 0, {"black": 0, "white": 2, "red"  : 0, "blue" : 1, "green": 0}),
                     CardFactory.newCard("green", 0, {"black": 0, "white": 0, "red"  : 2, "blue" : 2, "green": 0}),
                     CardFactory.newCard("white", 0, {"black": 1, "white": 0, "red"  : 1, "blue" : 1, "green": 1}),
                     CardFactory.newCard("red"  , 0, {"black": 0, "white": 0, "red"  : 0, "blue" : 2, "green": 1})
                 ],
                 'deck 2': [
-                    CardFactory.newCard("white", 2, {"black": 0, "white": 0, "red"  : 5, "blue" : 0, "green": 0}),
+                    
                     CardFactory.newCard("white", 3, {"black": 0, "white": 6, "red"  : 0, "blue" : 0, "green": 0}),
                     CardFactory.newCard("white", 1, {"black": 2, "white": 0, "red"  : 2, "blue" : 0, "green": 3}),
                     CardFactory.newCard("white", 2, {"black": 2, "white": 0, "red"  : 4, "blue" : 0, "green": 1}),
@@ -882,14 +883,14 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
 
                     CardFactory.newCard("black", 3, {"black": 6, "white": 0, "red"  : 0, "blue" : 0, "green": 0}),
 
-
+                    CardFactory.newCard("white", 2, {"black": 0, "white": 0, "red"  : 5, "blue" : 0, "green": 0}),
                     CardFactory.newCard("blue" , 1, {"black": 0, "white": 0, "red"  : 3, "blue" : 2, "green": 2}),
                     CardFactory.newCard("black", 1, {"black": 2, "white": 3, "red"  : 0, "blue" : 0, "green": 3}),
                     CardFactory.newCard("black", 2, {"black": 0, "white": 0, "red"  : 3, "blue" : 0, "green": 5})
                 ],
                 'deck 3': [
 
-                    CardFactory.newCard("white", 5, {"black": 7, "white": 3, "red"  : 0, "blue" : 0, "green": 0}),
+                    
                     CardFactory.newCard("white", 4, {"black": 6, "white": 3, "red"  : 3, "blue" : 0, "green": 0}),
                     CardFactory.newCard("white", 3, {"black": 3, "white": 0, "red"  : 5, "blue" : 3, "green": 3}),
 
@@ -910,6 +911,7 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
 
 
                     CardFactory.newCard("black", 4, {"black": 3, "white": 0, "red"  : 6, "blue" : 0, "green": 3}),
+                    CardFactory.newCard("white", 5, {"black": 7, "white": 3, "red"  : 0, "blue" : 0, "green": 0}),
                     CardFactory.newCard("black", 4, {"black": 0, "white": 0, "red"  : 7, "blue" : 0, "green": 0}),
 
                     CardFactory.newCard("green", 5, {"black": 0, "white": 0, "red"  : 0, "blue" : 7, "green": 3}),
@@ -1196,9 +1198,41 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
         },
         {
             type: "element",
+            selector: ".players",
+            heading: "The Board",
+            text: "There are three players in this game...",
+            placement: "left",
+            scroll: true
+        },
+        {
+            type: "element",
+            selector: "#you",
+            heading: "The Board",
+            text: "You are the starting player (as denoted by the 1),..",
+            placement: "left",
+            scroll: true
+        },
+        {
+            type: "element",
+            selector: "#alice",
+            heading: "The Board",
+            text: "Alice goes after you...",
+            placement: "left",
+            scroll: true
+        },
+        {
+            type: "element",
+            selector: "#bob",
+            heading: "The Board",
+            text: "And finally Bob.",
+            placement: "left",
+            scroll: true
+        },
+        {
+            type: "element",
             selector: ".board-cards",
             heading: "The Board",
-            text: "This is the game layout: there are three levels of three possible gem cards to build, each with differing costs. You will learn the importance of these cards later.",
+            text: "This is the game layout: there are three levels of three possible gem cards to build, each with differing costs. One way to get points is to buy these cards.",
             placement: "left",
             scroll: true
         },
@@ -1206,7 +1240,16 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
             type: "element",
             selector: "#nobles-cards",
             heading: "The Board",
-            text: "There are also some noble cards which can give you bonus points.  You will learn how to get them later. There are n+1 noble cards, where n is the number of players in the game. In this tutorial, there are 3 players, so 4 noble cards.",
+            text: "Another way to get points is to acquire noble cards. These cards cannot be bought; they can only be acquired when certain conditions are met. These conditions will be explained later in the tutorial. There are n+1 noble cards, where n is the number of players in the game. In this tutorial, there are 3 players, so 4 noble cards.",
+            placement: "left",
+            scrollPadding: 250,
+            scroll: true
+        },
+        {
+            type: "element",
+            selector: ".gems",
+            heading: "The Board",
+            text: "Finally, there are six types of gems in the game. These gems are used to buy cards.",
             placement: "left",
             scrollPadding: 250,
             scroll: true
@@ -1219,7 +1262,7 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
             type: "element",
             selector: ".you-scoreboard",
             heading: "The Board",
-            text: "Normally in a real game you will start off with 0 gems and 0 cards, but for this tutorial, we will give you some gems and some cards already. The number of gems and cards each player has are public information.",
+            text: "Normally in a real game you will start off with 0 gems and 0 cards, but for this tutorial, we will give you some gems and cards. The number of gems and cards each player has are public information.",
             placement: "left",
             scroll: true
         },
@@ -1251,7 +1294,7 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
             type: "element",
             selector: ".deck-1-0 > .bottom > .costs",
             heading: "The Board",
-            text: "The cost of this card is 2 blue gems and 1 green gem.",
+            text: "The cost of each card is on the bottom left. The cost for this card is 2 blue gems and 1 green gem.",
             placement: "left",
             scroll: true
         },
@@ -1275,7 +1318,7 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
             type: "element",
             selector: ".you-blue-building-count",
             heading: "The Board",
-            text: "but because you have one blue card, the cost is reduced by 1 (the blue card 'generates' a blue gem).",
+            text: "but because you have one blue card, the cost is reduced by one.",
             placement: "left",
             scroll: true
         },
@@ -1283,7 +1326,7 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
             type: "element",
             selector: ".deck-1-0",
             heading: "The Board",
-            text: "Now you will buy this card! There are always three cards of each level available (regardless of number of players), unless that level has run out of cards.",
+            text: "Now you will buy this card! There are always four cards of each level available (regardless of number of players), unless that level has run out of cards.",
             placement: "left"
         },
         {
@@ -1292,9 +1335,17 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
         },
         {
             type: "element",
-            selector: ".you-scoreboard",
+            selector: ".you-blue-gem-count",
             heading: "The Board",
-            text: "By buying the card, you pay the gems back to the game.",
+            text: "Notice that you paid one blue gem",
+            placement: "left",
+            scroll: true
+        },
+        {
+            type: "element",
+            selector: ".you-green-gem-count",
+            heading: "The Board",
+            text: "And one green gem.",
             placement: "left",
             scroll: true
         },
@@ -1302,8 +1353,9 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
             type: "element",
             selector: ".gems",
             heading: "The Board",
-            text: "This is the gem pool, and it shows how many of each gem are available. If there are 2 players, there are initially 4 gems of each color, if 3 players, 5,a nd if 4 players, 7. You can select gems (except for gold, which will be explained later) from here.",
+            text: "Gems that are paid go back to the gem pool. If there are 2 players, there are initially 4 gems of each color, if 3 players, 5, and if 4 players, 7. You can select gems (except for gold, which will be explained later) from here.",
             placement: "left",
+            scrollPadding: 250,
             scroll: true
         },
         {
@@ -1320,9 +1372,27 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
         },
         {
             type: "element",
-            selector: ".alice-scoreboard",
+            selector: ".alice-white-gem-count",
             heading: "The Board",
-            text: "On Alice's turn, she took 3 gems of different colors.",
+            text: "On Alice's turn, she took 1 white gem,",
+            placement: "bottom",
+            scrollPadding: 250,
+            scroll: true
+        },
+        {
+            type: "element",
+            selector: ".alice-red-gem-count",
+            heading: "The Board",
+            text: "1 red gem,",
+            placement: "bottom",
+            scrollPadding: 250,
+            scroll: true
+        },
+        {
+            type: "element",
+            selector: ".alice-green-gem-count",
+            heading: "The Board",
+            text: "and 1 green gem. Another action you can take is to take 1 gem of 3 different colors.",
             placement: "bottom",
             scrollPadding: 250,
             scroll: true
@@ -1342,17 +1412,9 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
         },
         {
             type: "element",
-            selector: ".bob-scoreboard",
+            selector: ".alice-blue-gem-count",
             heading: "The Board",
-            text: "On Bob's turn, he took 2 blue gems. This is another action you can do, but only if there are at least 4 gems of that color available",
-            placement: "left",
-            scroll: true
-        },
-        {
-            type: "element",
-            selector: ".gems",
-            heading: "The Board",
-            text: "Again, if there are at least 4 gems available, you can take 2 of that color.",
+            text: "On Bob's turn, he took 2 blue gems. On your turn you can also take 2 gems of a single color, but only if there are at least 4 gems of that color available before you take the gems.",
             placement: "left",
             scroll: true
         },
@@ -1360,7 +1422,34 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
             type: "element",
             selector: ".deck-3-2",
             heading: "The Board",
-            text: "This card provides a good number of points, but you cannot afford it yet. Instead you will reserve it. This is the final action that you can do on your turn.",
+            text: "This card provides a good number of points, but you cannot afford it yet. ",
+            scrollPadding: 250,
+            placement: "left",
+            scroll: true
+        },
+        {
+            type: "element",
+            selector: ".deck-3-2 > .bottom > .costs",
+            heading: "The Board",
+            text: "The card costs 7 gems, ",
+            scrollPadding: 250,
+            placement: "left",
+            scroll: true
+        },
+        {
+            type: "element",
+            selector: ".you-red-gem-count",
+            heading: "The Board",
+            text: "but you only have 4 red gems and 2 red cards.",
+            scrollPadding: 250,
+            placement: "left",
+            scroll: true
+        },
+        {
+            type: "element",
+            selector: ".deck-3-2",
+            heading: "The Board",
+            text: "Instead you will reserve the card. This means that no other player can build it except you. This is the final action that you can do on your turn. ",
             scrollPadding: 250,
             placement: "left",
             scroll: true
@@ -1402,7 +1491,7 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
             type: "element",
             selector: ".alice-white-2",
             heading: "The Board",
-            text: "Alice built this card, paying one red gem and one green gem. She did not have to pay a black or a blue gem because she has more than one of those cards.",
+            text: "Alice built this card, paying one red gem and one green gem. She did not have to pay a black or a blue gem because she has more than one of those cards. It is now Bob's turn.",
             placement: "left",
             scrollPadding: 250,
             scroll: true
@@ -1415,7 +1504,7 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
             type: "element",
             selector: ".bob-green-1",
             heading: "The Board",
-            text: "Bob built this card.  This card cost Bob no gems because he already owned 2 blue cards and 2 red cards.",
+            text: "Bob built this card.  This card cost Bob no gems because he already owned 2 blue cards and 2 red cards. Now it is your turn.",
             placement: "right",
             scroll: true
         },
@@ -1423,7 +1512,7 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
             type: "element",
             selector: ".you-reserved-0",
             heading: "The Board",
-            text: "Now you can build this card! Once you build it, it is no longer 'reserved' and does not count to your reserved card limit of 3 cards.",
+            text: "Now you can build this card because of the gold gem you received! Once you build it, it is no longer 'reserved' and does not count to your reserved card limit of 3 cards.",
             placement: "left",
             scroll: true
         },
@@ -1469,7 +1558,7 @@ angular.module('SplendorCtrl', []).controller('SplendorCtrl', ['$scope', 'CardFa
         },
         {
             type: "element",
-            selector: ".alice-green-deck",
+            selector: ".alice-green-gem-count",
             heading: "The Board",
             text: "Alice took 2 green gems (Remember this can only be done if there are at least 4 gems prior to taking two gems).",
             placement: "right",

@@ -122,11 +122,15 @@
 
             function _highlightElement() {
                 var currentPos = $fkEl.css('position');
-                if (currentPos === 'static') {
+                console.log($fkEl);
+                console.log($fkEl.css('position'))
+                $fkEl.addClass(this.staticClass);
+                /*
+                if (currentPos === 'static' || currentPos === 'absolute') {
                     $fkEl.addClass(this.staticClass);
                 } else {
                     $fkEl.addClass(this.nonStaticClass);
-                }
+                }*/
 
             }
 
