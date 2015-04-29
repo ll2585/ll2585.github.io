@@ -10,9 +10,7 @@
         <div class="costs">
             <div ng-repeat = "(cost_color, cost_amt) in cost" class="cost" ng-if="cost_amt > 0">
                 <div class="cost-amt">{{cost_amt}}</div>
-                <div class="color {{cost_color}}">
-                    &nbsp &nbsp
-                    </div>
+                <img src = "howtoplay/img/splendor/{{cost_color}}.svg" class="color {{cost_color}}"></img>
             </div>
         </div>
     </div>

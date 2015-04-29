@@ -1,52 +1,4 @@
-@media screen and (min-width: 1440px) {
-    .card {
-        width: 75px;
-        height: 105px;
-    }
-}
 
-@media screen and (max-width: 1440px) {
-    .card {
-        width: 75px;
-        height: 105px;
-    }
-}
-
-.card{
-    outline: black solid thin;
-    background-color: #ffffff;
-}
-
-.card > .top{
-    height:25%;
-    outline: black solid thin; 
-    position: relative;
-}
-
-.card > .top > .points{
-    font-size: large;
-    color: #ffffff;
-    text-shadow:
-        -1px -1px 0 #000,
-        1px -1px 0 #000,
-        -1px 1px 0 #000,
-        1px 1px 0 #000;
-    left: 5px;
-    width: 25%;
-    top: 10%;
-
-    display: inline-block;
-    position:absolute;
-}
-.card > .top > .color{
-    display: inline-block;
-    float:right;
-    right: 10px;
-    top: 10%;
-    height: 80%;
-    width: 28%;
-    position:absolute;
-}
 .noble{
     width: 75px;
     height: 105px;
@@ -137,31 +89,6 @@
 .gem .gold, .modal > .row .gold  {
     background: url(../img/splendor/gold.svg);
     background-size: 100% 100%;
-}
-.card > .bottom > .costs > .cost{
-    left: 2px;
-    height: 100%;
-    width: 100%;
-    display: inline-block;
-}
-.card > .bottom > .costs > .cost > .cost-amt{
-    height: 100%;
-    width: 16px; /* TODO: make this responsive eventually */
-    display: inline;
-}
-.card > .bottom > .costs > .cost > .color{
-    height: 100%;
-    display: inline;
-}
-.card > .bottom {
-    height:75%;
-    position: relative;
-}
-.card > .bottom > .costs{
-    position: absolute;
-    display: inline-block;
-    bottom:0;
-    left: 5px;
 }
 
 .noble > .bottom > .requirements > .requirement{
