@@ -1,6 +1,18 @@
+@media screen and (min-width: 1440px) {
+    .card {
+        width: 75px;
+        height: 105px;
+    }
+}
+
+@media screen and (max-width: 1440px) {
+    .card {
+        width: 75px;
+        height: 105px;
+    }
+}
+
 .card{
-    width: 75px;
-    height: 105px;
     outline: black solid thin;
     background-color: #ffffff;
 }
@@ -84,7 +96,7 @@
 }
 .gem-count{
     display: inline-block;
-    width: 100%; /*TODO: MAKE THIS DYNAMIC */
+    width: 100%;
     font-size: smaller;
 }
 .gem-count-label{
@@ -209,7 +221,7 @@
 #board{
     position:relative;
     clear:both;
-    width: 500px; /*TODO: make this responsive */
+    width: 90%;
     margin: 0 auto;
 }
 #level3-cards, #level2-cards, #level1-cards, #nobles-cards{
@@ -261,7 +273,7 @@
 .deck-label{
     display: inline-block;
     vertical-align: middle;
-    margin-top: -72.5px; /* TODO: make this responsive */
+    margin-top: -15%;
     
 }
 /* overlay styles, all needed */

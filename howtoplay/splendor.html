@@ -4,9 +4,9 @@
     <button ng-click="showTutorial()">Start Tutorial</button>
     <button ng-click="playDemo()" ng-if="!demoStarted" class="demo-button">Play a Demo</button>
     <button ng-click="playDemo()" ng-if="demoStarted" class="demo-button">Restart Demo</button>
-    <div class="container">
+    <div class="container-fluid">
         <div class="row">
-            <div class="players col-xs-6">
+            <div class="players col-xs-8">
                 <div ng-repeat="p in players">
                     <div id="~~p.name%$" ng-class="{'selected': curPlayer.name == p.name}" class="player-block">
                         <div class="image-and-stats">
@@ -52,7 +52,7 @@
                     </div>
                 </div>
             </div>
-            <div class="game col-xs-6">
+            <div class="game col-xs-4">
                 <div id="game-messages">
                     <div class="message" ng-repeat="msg in game_messages track by $index">
                         ~~msg%$
