@@ -2,10 +2,6 @@
 ---
 
 // start content
-$long: "(min-width: 1440px)";
-$middle: "(min-width: 1024px) and (max-width: 1440px)";
-$tablet: "(min-width: 768px) and (max-width: 1023px)";
-$phone: "(max-width: 767px)";
 $defaultCardHeight: 105px;
 $cardRatio: (75px/105px);
 $defaultCardWidth: $cardRatio * $defaultCardHeight;
@@ -22,7 +18,7 @@ $phoneScale: .33;
 }
 
 $desktop-width: 1440px;
-$laptop-width: 1024px;
+$laptop-width: 1180px;
 $tablet-width: 768px;
 
 @mixin phone {
@@ -144,4 +140,60 @@ $tablet-width: 768px;
       }
     }
   }
+}
+
+@mixin cards-in-line {
+  position: relative;
+  display: inline-block;
+  text-align: left;
+}
+
+@mixin cards-in-line-parent {
+  position:relative;
+  margin: 0 auto;
+  width:100%;
+}
+
+#level3-cards, #level2-cards, #level1-cards{
+  > .card {
+    @include cards-in-line
+  }
+  @include cards-in-line-parent
+}
+
+#nobles-cards{
+  > .noble {
+    @include cards-in-line
+  }
+  @include cards-in-line-parent
+}
+
+.scoreboard{
+  display:block;
+  border: 1px solid black;
+  float:right;
+  @include desktop{
+    width: $defaultCardWidth * 5;
+  }
+  @include laptop{
+    width: $defaultCardWidth * $laptopScale * 5;
+  }
+  @include tablet{
+    width: $defaultCardWidth * $tabletScale * 5;
+  }
+  @include phone{
+    width: $defaultCardWidth * $phoneScale * 5;
+  }
+  height: 130px; /* TODO: make this responsive */
+}
+.scoreboard > .color-category > .deck > .card-container{
+  margin-top: -78.75px; /* TODO: make this responsive */
+  position:relative;
+}
+.scoreboard > .color-category{
+  display: inline-block;
+  width: 20%;
+}
+.scoreboard > .color-category > .deck{
+  margin-top: 78.75px; /* TODO: make this responsive */
 }

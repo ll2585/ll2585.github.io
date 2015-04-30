@@ -117,24 +117,7 @@
     bottom:0;
     left: 5px;
 }
-.scoreboard{
-    display:block;
-    border: 1px solid black;
-    float:right;
-    width: 377px; /* TODO: make this responsive */
-    height: 130px; /* TODO: make this responsive */
-}
-.scoreboard > .color-category > .deck > .card-container{
-    margin-top: -78.75px; /* TODO: make this responsive */
-    position:relative;
-}
-.scoreboard > .color-category{
-    display: inline-block;
-    width: 20%;
-}
-.scoreboard > .color-category > .deck{
-    margin-top: 78.75px; /* TODO: make this responsive */
-}
+
 
 #you{
     display:inline-block;
@@ -151,18 +134,7 @@
     width: 90%;
     margin: 0 auto;
 }
-#level3-cards, #level2-cards, #level1-cards, #nobles-cards{
-    position:relative;
-    margin: 0 auto;
-    width:100%;
-}
 
-#level3-cards > .card, #level2-cards > .card, #level1-cards > .card, #nobles-cards > .noble{
-    position: relative;
-    display: inline-block;
-    text-align: left;
-    
-}
 
 .player-block{
     height:400px;/*TODO: make this responsive */
