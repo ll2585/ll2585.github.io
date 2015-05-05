@@ -74,5 +74,5 @@ public interface ViewInterface {
 }
 ```
 
-Okay so I then make the Presenter implementation
+Okay so I then make the Presenter implementation...some other time. 
 
